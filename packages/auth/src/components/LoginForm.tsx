@@ -1,212 +1,161 @@
-import { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
-  Pressable,
+  TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
-} from "react-native";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import type { UserRole } from "@repo/db";
-import { useAuth } from "../useAuth";
-import { AuthLayout } from "./AuthLayout";
-import { RoleMismatchAlert } from "./RoleMismatchAlert";
-
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+} from 'react-native';
+import { UserRole } from '@repo/types';
 
 interface LoginFormProps {
-  targetRole: UserRole;
-  onNavigateToSignUp: () => void;
+  role: UserRole;
+  onSubmit: (email: string, password?: string) => Promise<{ error?: string }>;
+  isLoading?: boolean;
 }
 
-export const LoginForm = ({
-  targetRole,
-  onNavigateToSignUp,
-}: LoginFormProps) => {
-  const { signIn, loading } = useAuth();
-  const [authError, setAuthError] = useState<string | null>(null);
+export const LoginForm: React.FC<LoginFormProps> = ({
+  role,
+  onSubmit,
+  isLoading = false,
+}) => {
+  const isPro = role === 'professional';
+  const defaultEmail = isPro ? 'pro@urban.local' : 'customer@urban.local';
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
+  const [email, setEmail] = useState(defaultEmail);
+  const [password, setPassword] = useState('password123');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const onSubmit = async (data: LoginFormData) => {
-    setAuthError(null);
-    const { error } = await signIn(data.email, data.password);
-    if (error) {
-      setAuthError(error.message);
+  const handleSubmit = async () => {
+    if (!email.trim()) {
+      setErrorMessage('Please enter your email address');
+      return;
+    }
+    setErrorMessage(null);
+    const result = await onSubmit(email.trim(), password);
+    if (result.error) {
+      setErrorMessage(result.error);
     }
   };
 
   return (
-    <AuthLayout
-      title="Welcome Back"
-      subtitle={`Sign in to access your ${targetRole} account`}
-      targetRole={targetRole}
-    >
-      <RoleMismatchAlert />
-
-      {authError && (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorBannerText}>{authError}</Text>
+    <View style={styles.container}>
+      {errorMessage && (
+        <View style={styles.errorBox}>
+          <Text style={styles.errorText}>⚠️ {errorMessage}</Text>
         </View>
       )}
 
-      <View style={styles.formGroup}>
+      {/* Email input */}
+      <View style={styles.fieldGroup}>
         <Text style={styles.label}>Email Address</Text>
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.email && styles.inputError]}
-              placeholder="you@example.com"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. yourname@example.com"
+          placeholderTextColor="#64748B"
+          value={email}
+          onChangeText={(val) => {
+            setEmail(val);
+            if (errorMessage) setErrorMessage(null);
+          }}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
         />
-        {errors.email && (
-          <Text style={styles.fieldError}>{errors.email.message}</Text>
-        )}
       </View>
 
-      <View style={styles.formGroup}>
+      {/* Password input */}
+      <View style={styles.fieldGroup}>
         <Text style={styles.label}>Password</Text>
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.password && styles.inputError]}
-              placeholder="••••••••"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-              autoCapitalize="none"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
+        <TextInput
+          style={styles.input}
+          placeholder="••••••••"
+          placeholderTextColor="#64748B"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          autoCapitalize="none"
         />
-        {errors.password && (
-          <Text style={styles.fieldError}>{errors.password.message}</Text>
-        )}
       </View>
 
-      <Pressable
-        style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-        onPress={handleSubmit(onSubmit)}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#FFFFFF" />
+      {/* Submit Button */}
+      <TouchableOpacity
+        style={[
+          styles.submitButton,
+          isPro ? styles.submitButtonPro : styles.submitButtonCust,
+          isLoading && styles.submitButtonDisabled,
+        ]}
+        activeOpacity={0.8}
+        onPress={handleSubmit}
+        disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color="#FFFFFF" size="small" />
         ) : (
-          <Text style={styles.submitButtonText}>Sign In</Text>
+          <Text style={styles.submitButtonText}>
+            Sign In to {isPro ? 'Pro Dashboard' : 'Account'}
+          </Text>
         )}
-      </Pressable>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Don't have an account?</Text>
-        <Pressable onPress={onNavigateToSignUp}>
-          <Text style={styles.linkText}>Create Account</Text>
-        </Pressable>
-      </View>
-    </AuthLayout>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  formGroup: {
-    marginBottom: 16,
+  container: {
+    width: '100%',
   },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 6,
-  },
-  input: {
-    backgroundColor: "#F9FAFB",
+  errorBox: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
     borderWidth: 1,
-    borderColor: "#D1D5DB",
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-    color: "#111827",
-  },
-  inputError: {
-    borderColor: "#EF4444",
-  },
-  fieldError: {
-    color: "#EF4444",
-    fontSize: 12,
-    marginTop: 4,
-  },
-  errorBanner: {
-    backgroundColor: "#FEF2F2",
-    borderColor: "#FCA5A5",
-    borderWidth: 1,
-    borderRadius: 8,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderRadius: 12,
     padding: 12,
     marginBottom: 16,
   },
-  errorBannerText: {
-    color: "#B91C1C",
-    fontSize: 14,
-    textAlign: "center",
+  errorText: {
+    color: '#F87171',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  fieldGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    color: '#E2E8F0',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  input: {
+    backgroundColor: '#0F172A',
+    borderWidth: 1,
+    borderColor: '#334155',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    color: '#F8FAFC',
+    fontSize: 15,
   },
   submitButton: {
-    backgroundColor: "#111827",
     paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: "center",
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 8,
   },
+  submitButtonCust: {
+    backgroundColor: '#7C3AED',
+  },
+  submitButtonPro: {
+    backgroundColor: '#10B981',
+  },
   submitButtonDisabled: {
-    opacity: 0.7,
+    opacity: 0.6,
   },
   submitButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 20,
-  },
-  footerText: {
-    fontSize: 14,
-    color: "#6B7280",
-  },
-  linkText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#2563EB",
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
   },
 });

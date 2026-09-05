@@ -1,296 +1,251 @@
-import { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
-  Pressable,
+  TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
-} from "react-native";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import type { UserRole } from "@repo/db";
-import { useAuth } from "../useAuth";
-import { AuthLayout } from "./AuthLayout";
-
-const signUpSchema = z
-  .object({
-    fullName: z.string().min(2, "Full name must be at least 2 characters"),
-    email: z.string().email("Please enter a valid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type SignUpFormData = z.infer<typeof signUpSchema>;
+} from 'react-native';
+import { UserRole } from '@repo/types';
+import { SignUpData } from '../auth-context';
 
 interface SignUpFormProps {
-  targetRole: UserRole;
-  onNavigateToSignIn: () => void;
+  role: UserRole;
+  onSubmit: (data: SignUpData) => Promise<{ error?: string }>;
+  isLoading?: boolean;
 }
 
-export const SignUpForm = ({
-  targetRole,
-  onNavigateToSignIn,
-}: SignUpFormProps) => {
-  const { signUp, loading } = useAuth();
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+export const SignUpForm: React.FC<SignUpFormProps> = ({
+  role,
+  onSubmit,
+  isLoading = false,
+}) => {
+  const isPro = role === 'professional';
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      fullName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [city, setCity] = useState('Bengaluru');
+  const [bio, setBio] = useState('');
+  const [experienceYears, setExperienceYears] = useState('3');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const onSubmit = async (data: SignUpFormData) => {
-    setAuthError(null);
-    setSuccessMsg(null);
-    const { error } = await signUp(
-      data.email,
-      data.password,
-      data.fullName,
-      targetRole,
-    );
-    if (error) {
-      setAuthError(error.message);
-    } else {
-      setSuccessMsg("Account created! Please check your email or log in.");
+  const handleSubmit = async () => {
+    if (!fullName.trim()) {
+      setErrorMessage('Please enter your full name');
+      return;
+    }
+    if (!email.trim()) {
+      setErrorMessage('Please enter your email address');
+      return;
+    }
+    if (!phone.trim()) {
+      setErrorMessage('Please enter your phone number');
+      return;
+    }
+
+    setErrorMessage(null);
+    const result = await onSubmit({
+      fullName: fullName.trim(),
+      email: email.trim(),
+      password: password.trim() || 'password123',
+      phone: phone.trim(),
+      city: city.trim(),
+      role,
+      bio: isPro ? bio.trim() : undefined,
+      experienceYears: isPro ? parseInt(experienceYears, 10) || 1 : undefined,
+    });
+
+    if (result.error) {
+      setErrorMessage(result.error);
     }
   };
 
   return (
-    <AuthLayout
-      title="Create Account"
-      subtitle={`Register for a new ${targetRole} account`}
-      targetRole={targetRole}
-    >
-      {authError && (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorBannerText}>{authError}</Text>
+    <View style={styles.container}>
+      {errorMessage && (
+        <View style={styles.errorBox}>
+          <Text style={styles.errorText}>⚠️ {errorMessage}</Text>
         </View>
       )}
 
-      {successMsg && (
-        <View style={styles.successBanner}>
-          <Text style={styles.successBannerText}>{successMsg}</Text>
-        </View>
-      )}
-
-      <View style={styles.formGroup}>
+      {/* Full Name */}
+      <View style={styles.fieldGroup}>
         <Text style={styles.label}>Full Name</Text>
-        <Controller
-          control={control}
-          name="fullName"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.fullName && styles.inputError]}
-              placeholder="Jane Doe"
-              placeholderTextColor="#9CA3AF"
-              autoCapitalize="words"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. Rahul Sharma"
+          placeholderTextColor="#64748B"
+          value={fullName}
+          onChangeText={setFullName}
         />
-        {errors.fullName && (
-          <Text style={styles.fieldError}>{errors.fullName.message}</Text>
-        )}
       </View>
 
-      <View style={styles.formGroup}>
+      {/* Email */}
+      <View style={styles.fieldGroup}>
         <Text style={styles.label}>Email Address</Text>
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.email && styles.inputError]}
-              placeholder="you@example.com"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. rahul@example.com"
+          placeholderTextColor="#64748B"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
-        {errors.email && (
-          <Text style={styles.fieldError}>{errors.email.message}</Text>
-        )}
       </View>
 
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Password</Text>
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.password && styles.inputError]}
-              placeholder="••••••••"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-              autoCapitalize="none"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
+      {/* Phone */}
+      <View style={styles.fieldGroup}>
+        <Text style={styles.label}>Phone Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="+91 98765 43210"
+          placeholderTextColor="#64748B"
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
         />
-        {errors.password && (
-          <Text style={styles.fieldError}>{errors.password.message}</Text>
-        )}
       </View>
 
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Confirm Password</Text>
-        <Controller
-          control={control}
-          name="confirmPassword"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[
-                styles.input,
-                errors.confirmPassword && styles.inputError,
-              ]}
-              placeholder="••••••••"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-              autoCapitalize="none"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
+      {/* City */}
+      <View style={styles.fieldGroup}>
+        <Text style={styles.label}>City</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Bengaluru"
+          placeholderTextColor="#64748B"
+          value={city}
+          onChangeText={setCity}
         />
-        {errors.confirmPassword && (
-          <Text style={styles.fieldError}>
-            {errors.confirmPassword.message}
+      </View>
+
+      {/* Pro specific fields */}
+      {isPro && (
+        <>
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Years of Experience</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. 5"
+              placeholderTextColor="#64748B"
+              value={experienceYears}
+              onChangeText={setExperienceYears}
+              keyboardType="numeric"
+            />
+          </View>
+
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Professional Bio & Skills</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="e.g. Certified technician specializing in AC repair & cleaning..."
+              placeholderTextColor="#64748B"
+              value={bio}
+              onChangeText={setBio}
+              multiline
+              numberOfLines={3}
+            />
+          </View>
+        </>
+      )}
+
+      {/* Password */}
+      <View style={styles.fieldGroup}>
+        <Text style={styles.label}>Create Password</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="••••••••"
+          placeholderTextColor="#64748B"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+      </View>
+
+      {/* Submit Button */}
+      <TouchableOpacity
+        style={[
+          styles.submitButton,
+          isPro ? styles.submitButtonPro : styles.submitButtonCust,
+          isLoading && styles.submitButtonDisabled,
+        ]}
+        activeOpacity={0.8}
+        onPress={handleSubmit}
+        disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color="#FFFFFF" size="small" />
+        ) : (
+          <Text style={styles.submitButtonText}>
+            {isPro ? 'Register as Partner' : 'Create Customer Account'}
           </Text>
         )}
-      </View>
-
-      <Pressable
-        style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-        onPress={handleSubmit(onSubmit)}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={styles.submitButtonText}>Register</Text>
-        )}
-      </Pressable>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Already have an account?</Text>
-        <Pressable onPress={onNavigateToSignIn}>
-          <Text style={styles.linkText}>Sign In</Text>
-        </Pressable>
-      </View>
-    </AuthLayout>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  formGroup: {
+  container: {
+    width: '100%',
+  },
+  errorBox: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderRadius: 12,
+    padding: 12,
     marginBottom: 16,
   },
+  errorText: {
+    color: '#F87171',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  fieldGroup: {
+    marginBottom: 14,
+  },
   label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#374151",
+    color: '#E2E8F0',
+    fontSize: 13,
+    fontWeight: '600',
     marginBottom: 6,
   },
   input: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: '#0F172A',
     borderWidth: 1,
-    borderColor: "#D1D5DB",
-    borderRadius: 10,
+    borderColor: '#334155',
+    borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
+    color: '#F8FAFC',
     fontSize: 15,
-    color: "#111827",
   },
-  inputError: {
-    borderColor: "#EF4444",
-  },
-  fieldError: {
-    color: "#EF4444",
-    fontSize: 12,
-    marginTop: 4,
-  },
-  errorBanner: {
-    backgroundColor: "#FEF2F2",
-    borderColor: "#FCA5A5",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  errorBannerText: {
-    color: "#B91C1C",
-    fontSize: 14,
-    textAlign: "center",
-  },
-  successBanner: {
-    backgroundColor: "#ECFDF5",
-    borderColor: "#6EE7B7",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  successBannerText: {
-    color: "#065F46",
-    fontSize: 14,
-    textAlign: "center",
+  textArea: {
+    height: 72,
+    textAlignVertical: 'top',
   },
   submitButton: {
-    backgroundColor: "#111827",
     paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 8,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  submitButtonCust: {
+    backgroundColor: '#7C3AED',
+  },
+  submitButtonPro: {
+    backgroundColor: '#10B981',
   },
   submitButtonDisabled: {
-    opacity: 0.7,
+    opacity: 0.6,
   },
   submitButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 20,
-  },
-  footerText: {
-    fontSize: 14,
-    color: "#6B7280",
-  },
-  linkText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#2563EB",
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
   },
 });
