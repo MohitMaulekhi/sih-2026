@@ -8,6 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { UserRole } from '@repo/types';
+import { ShieldAlert, ArrowRight } from 'lucide-react-native';
 
 interface RoleMismatchAlertProps {
   visible: boolean;
@@ -39,7 +40,7 @@ export const RoleMismatchAlert: React.FC<RoleMismatchAlertProps> = ({
       <View style={styles.overlay}>
         <View style={styles.modalCard}>
           <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>🛡️</Text>
+            <ShieldAlert size={32} color="#F87171" />
           </View>
 
           <Text style={styles.title}>Role Isolation Guard</Text>
@@ -55,7 +56,7 @@ export const RoleMismatchAlert: React.FC<RoleMismatchAlertProps> = ({
                 Current: {currentRole}
               </Text>
             </View>
-            <Text style={styles.arrowText}>➔</Text>
+            <ArrowRight size={14} color="#64748B" />
             <View
               style={
                 isProTarget ? styles.roleTagTargetPro : styles.roleTagTargetCust
@@ -79,17 +80,10 @@ export const RoleMismatchAlert: React.FC<RoleMismatchAlertProps> = ({
                 : styles.primaryButtonCust,
             ]}
             activeOpacity={0.8}
-            onPress={onSwitchToCorrectAccount}>
-            <Text style={styles.primaryButtonText}>
-              Switch to {isProTarget ? 'Professional Partner' : 'Customer'} Account
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            activeOpacity={0.7}
             onPress={onSignOut}>
-            <Text style={styles.secondaryButtonText}>Sign Out</Text>
+            <Text style={styles.primaryButtonText}>
+              Sign Out to Switch Accounts
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -133,15 +127,12 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#334155',
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#475569',
-  },
-  iconText: {
-    fontSize: 28,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   title: {
     fontSize: 20,
@@ -177,20 +168,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textTransform: 'capitalize',
   },
-  arrowText: {
-    color: '#64748B',
-    fontSize: 14,
-  },
   roleTagTargetCust: {
-    backgroundColor: 'rgba(124, 58, 237, 0.15)',
+    backgroundColor: 'rgba(234, 88, 12, 0.15)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(167, 139, 250, 0.3)',
+    borderColor: 'rgba(251, 146, 60, 0.3)',
   },
   roleTagTextTargetCust: {
-    color: '#C4B5FD',
+    color: '#FDBA74',
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'capitalize',
@@ -217,7 +204,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   primaryButtonCust: {
-    backgroundColor: '#7C3AED',
+    backgroundColor: '#EA580C',
   },
   primaryButtonPro: {
     backgroundColor: '#10B981',
@@ -226,16 +213,5 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '700',
-  },
-  secondaryButton: {
-    width: '100%',
-    paddingVertical: 12,
-    borderRadius: 14,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: '#94A3B8',
-    fontSize: 14,
-    fontWeight: '600',
   },
 });

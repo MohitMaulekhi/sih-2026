@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "customer",
-    "slug": "customer",
+    "name": "RuralClap",
+    "slug": "ruralclap",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "customer",
+    "scheme": "ruralclap",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"

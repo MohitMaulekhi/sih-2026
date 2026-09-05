@@ -211,28 +211,106 @@ CREATE POLICY "Users update relevant bookings"
 
 -- Auth Trigger on User Creation
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER 
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_role public.user_role;
+  v_role_text text;
 BEGIN
-  INSERT INTO public.profiles (id, full_name, email, role, avatar_url)
+  -- Extract role safely
+  v_role_text := LOWER(COALESCE(NEW.raw_user_meta_data->>'role', 'customer'));
+  
+  IF v_role_text = 'professional' THEN
+    v_role := 'professional'::public.user_role;
+  ELSE
+    v_role := 'customer'::public.user_role;
+  END IF;
+
+  INSERT INTO public.profiles (
+    id,
+    full_name,
+    email,
+    role,
+    phone,
+    city,
+    address,
+    bio,
+    experience_years,
+    avatar_url,
+    rating,
+    is_verified,
+    is_online,
+    created_at,
+    updated_at
+  )
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', 'User'),
+    COALESCE(NEW.raw_user_meta_data->>'full_name', SPLIT_PART(NEW.email, '@', 1)),
     NEW.email,
-    COALESCE((NEW.raw_user_meta_data->>'role')::public.user_role, 'customer'),
-    COALESCE(NEW.raw_user_meta_data->>'avatar_url', '')
+    v_role,
+    NEW.raw_user_meta_data->>'phone',
+    COALESCE(NEW.raw_user_meta_data->>'city', 'Bengaluru'),
+    NEW.raw_user_meta_data->>'address',
+    NEW.raw_user_meta_data->>'bio',
+    COALESCE(NULLIF(NEW.raw_user_meta_data->>'experience_years', '')::integer, 1),
+    COALESCE(NEW.raw_user_meta_data->>'avatar_url', ''),
+    5.00,
+    true,
+    true,
+    now(),
+    now()
   )
   ON CONFLICT (id) DO UPDATE SET
     full_name = EXCLUDED.full_name,
     role = EXCLUDED.role,
+    phone = COALESCE(EXCLUDED.phone, public.profiles.phone),
+    city = COALESCE(EXCLUDED.city, public.profiles.city),
+    bio = COALESCE(EXCLUDED.bio, public.profiles.bio),
+    experience_years = COALESCE(EXCLUDED.experience_years, public.profiles.experience_years),
     updated_at = now();
+
   RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN
+    RAISE WARNING 'handle_new_user error: %', SQLERRM;
+    RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Profile RLS Policies
+DROP POLICY IF EXISTS "Public profiles are viewable by authenticated users" ON public.profiles;
+DROP POLICY IF EXISTS "Enable select for all authenticated users" ON public.profiles;
+CREATE POLICY "Enable select for all authenticated users"
+  ON public.profiles FOR SELECT
+  TO authenticated, anon
+  USING (true);
+
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Enable update for users based on id" ON public.profiles;
+CREATE POLICY "Enable update for users based on id"
+  ON public.profiles FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Enable insert for profiles" ON public.profiles;
+CREATE POLICY "Enable insert for profiles"
+  ON public.profiles FOR INSERT
+  TO authenticated, anon
+  WITH CHECK (true);
+
+-- Permissions
+GRANT USAGE ON SCHEMA public TO postgres, anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO postgres, anon, authenticated, service_role;
 
 -- Optional initial seed categories & services (Safe with ON CONFLICT)
 INSERT INTO public.categories (id, name, slug, description, icon, image_url, sort_order)

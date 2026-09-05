@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "professional",
-    "slug": "professional",
+    "name": "RuralClap Partner",
+    "slug": "ruralclap-partner",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "professional",
+    "scheme": "ruralclap-partner",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"

@@ -13,10 +13,13 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@expo/vector-icons": "^15.1.1",
     "@repo/types": "workspace:*",
     "@repo/utils": "workspace:*",
+    "lucide-react-native": "^1.40.0",
     "react": "19.2.3",
-    "react-native": "0.86.3"
+    "react-native": "0.86.3",
+    "react-native-svg": "^15.15.5"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

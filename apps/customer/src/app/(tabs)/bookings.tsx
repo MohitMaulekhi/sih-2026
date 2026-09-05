@@ -4,23 +4,33 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   Image,
   Modal,
   TextInput,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@repo/auth';
 import { dbStore } from '@repo/db';
-import { Booking, BookingStatus } from '@repo/types';
+import { Booking } from '@repo/types';
 import {
   StatusBadge,
   PaymentBadge,
   EmptyState,
 } from '@repo/ui';
 import { formatCurrency, formatDate } from '@repo/utils';
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Phone,
+  Star,
+  CheckCircle2,
+  Wrench,
+  MessageSquare,
+} from 'lucide-react-native';
 
 export default function CustomerBookingsScreen() {
   const router = useRouter();
@@ -64,7 +74,7 @@ export default function CustomerBookingsScreen() {
     if (activeTab === 'cancelled') {
       return b.status === 'cancelled';
     }
-    return true; // 'all'
+    return true;
   });
 
   const handleCancelBooking = () => {
@@ -156,7 +166,7 @@ export default function CustomerBookingsScreen() {
         showsVerticalScrollIndicator={false}>
         {filteredBookings.length === 0 ? (
           <EmptyState
-            icon="📅"
+            icon="clipboard"
             title="No Bookings Found"
             description={
               activeTab === 'active'
@@ -164,7 +174,7 @@ export default function CustomerBookingsScreen() {
                 : 'No services found under this tab.'
             }
             actionText="Book a Service Now"
-            onAction={() => router.push('/(tabs)')}
+            onAction={() => router.push('/(tabs)' as any)}
           />
         ) : (
           filteredBookings.map((booking) => (
@@ -191,19 +201,25 @@ export default function CustomerBookingsScreen() {
                   />
                 ) : (
                   <View style={styles.thumbnailFallback}>
-                    <Text>🛠️</Text>
+                    <Wrench size={24} color="#EA580C" />
                   </View>
                 )}
                 <View style={styles.serviceDetails}>
                   <Text style={styles.serviceTitle}>
                     {booking.service?.title || 'Home Service'}
                   </Text>
-                  <Text style={styles.scheduleText}>
-                    📅 {formatDate(booking.scheduledDate)}
-                  </Text>
-                  <Text style={styles.scheduleText}>
-                    ⏱️ {booking.scheduledTimeSlot}
-                  </Text>
+                  <View style={styles.scheduleRow}>
+                    <Calendar size={12} color="#64748B" style={{ marginRight: 4 }} />
+                    <Text style={styles.scheduleText}>
+                      {formatDate(booking.scheduledDate)}
+                    </Text>
+                  </View>
+                  <View style={styles.scheduleRow}>
+                    <Clock size={12} color="#64748B" style={{ marginRight: 4 }} />
+                    <Text style={styles.scheduleText}>
+                      {booking.scheduledTimeSlot}
+                    </Text>
+                  </View>
                 </View>
               </View>
 
@@ -232,16 +248,20 @@ export default function CustomerBookingsScreen() {
                     </View>
                   </View>
                   {booking.professional.phone && (
-                    <Text style={styles.proPhone}>
-                      📞 {booking.professional.phone}
-                    </Text>
+                    <View style={styles.phoneBadge}>
+                      <Phone size={12} color="#059669" style={{ marginRight: 4 }} />
+                      <Text style={styles.proPhone}>
+                        {booking.professional.phone}
+                      </Text>
+                    </View>
                   )}
                 </View>
               ) : (
                 booking.status === 'pending' && (
                   <View style={styles.pendingProBox}>
+                    <Clock size={14} color="#92400E" style={{ marginRight: 6 }} />
                     <Text style={styles.pendingProText}>
-                      ⏳ Matching nearest certified professional...
+                      Matching nearest certified professional...
                     </Text>
                   </View>
                 )
@@ -249,7 +269,7 @@ export default function CustomerBookingsScreen() {
 
               {/* Address info */}
               <View style={styles.addressRow}>
-                <Text style={styles.addressIcon}>📍</Text>
+                <MapPin size={14} color="#64748B" style={styles.addressIcon} />
                 <Text style={styles.addressText} numberOfLines={2}>
                   {booking.customerAddress}
                 </Text>
@@ -258,9 +278,12 @@ export default function CustomerBookingsScreen() {
               {/* Rating review if given */}
               {booking.rating && (
                 <View style={styles.reviewBox}>
-                  <Text style={styles.reviewRating}>
-                    Your Rating: {'★'.repeat(booking.rating)} ({booking.rating}/5)
-                  </Text>
+                  <View style={styles.ratingStarsRow}>
+                    <Text style={styles.reviewRating}>Your Rating: </Text>
+                    {[...Array(booking.rating)].map((_, i) => (
+                      <Star key={i} size={12} color="#F59E0B" fill="#F59E0B" style={{ marginRight: 2 }} />
+                    ))}
+                  </View>
                   {booking.reviewText && (
                     <Text style={styles.reviewComment}>
                       "{booking.reviewText}"
@@ -314,7 +337,8 @@ export default function CustomerBookingsScreen() {
                         setRatingScore(5);
                         setRatingModalVisible(true);
                       }}>
-                      <Text style={styles.rateBtnText}>Rate Service ★</Text>
+                      <Star size={13} color="#FFFFFF" fill="#FFFFFF" style={{ marginRight: 4 }} />
+                      <Text style={styles.rateBtnText}>Rate Service</Text>
                     </TouchableOpacity>
                   )}
 
@@ -324,7 +348,7 @@ export default function CustomerBookingsScreen() {
                       style={styles.bookAgainBtn}
                       activeOpacity={0.8}
                       onPress={() =>
-                        router.push(`/book/${booking.serviceId}`)
+                        router.push(`/book/${booking.serviceId}` as any)
                       }>
                       <Text style={styles.bookAgainBtnText}>Book Again</Text>
                     </TouchableOpacity>
@@ -408,14 +432,13 @@ export default function CustomerBookingsScreen() {
                 <TouchableOpacity
                   key={s}
                   onPress={() => setRatingScore(s)}
-                  activeOpacity={0.7}>
-                  <Text
-                    style={[
-                      styles.starIcon,
-                      s <= ratingScore ? styles.starFilled : styles.starEmpty,
-                    ]}>
-                    ★
-                  </Text>
+                  activeOpacity={0.7}
+                  style={{ padding: 4 }}>
+                  <Star
+                    size={30}
+                    color={s <= ratingScore ? '#F59E0B' : '#CBD5E1'}
+                    fill={s <= ratingScore ? '#F59E0B' : 'transparent'}
+                  />
                 </TouchableOpacity>
               ))}
             </View>
@@ -478,37 +501,30 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 12,
-    padding: 4,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
     gap: 4,
+    marginTop: 4,
   },
   tabBtn: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
   },
   tabBtnActive: {
-    backgroundColor: '#FFFFFF',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-      },
-      android: { elevation: 2 },
-      web: { boxShadow: '0 1px 4px rgba(0, 0, 0, 0.08)' },
-    }),
+    borderBottomColor: '#EA580C',
+    borderBottomWidth: 2,
   },
   tabBtnText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     color: '#64748B',
   },
   tabBtnTextActive: {
-    color: '#7C3AED',
+    color: '#EA580C',
     fontWeight: '800',
   },
   listContainer: {
@@ -547,7 +563,7 @@ const styles = StyleSheet.create({
   bookingCategory: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#7C3AED',
+    color: '#EA580C',
     marginTop: 1,
   },
   serviceRow: {
@@ -565,7 +581,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 10,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#FFEDD5',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -577,6 +593,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1E293B',
     marginBottom: 4,
+  },
+  scheduleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
   },
   scheduleText: {
     fontSize: 12,
@@ -608,12 +629,12 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#EDE9FE',
+    backgroundColor: '#FFEDD5',
     justifyContent: 'center',
     alignItems: 'center',
   },
   proAvatarInitial: {
-    color: '#7C3AED',
+    color: '#EA580C',
     fontWeight: '800',
   },
   proLabel: {
@@ -627,12 +648,19 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#0F172A',
   },
+  phoneBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   proPhone: {
     fontSize: 12,
     color: '#059669',
     fontWeight: '700',
   },
   pendingProBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#FEF3C7',
     borderRadius: 10,
     padding: 10,
@@ -642,17 +670,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#92400E',
     fontWeight: '600',
-    textAlign: 'center',
   },
   addressRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 6,
     marginTop: 4,
     marginBottom: 12,
   },
   addressIcon: {
-    fontSize: 13,
+    marginRight: 6,
+    marginTop: 1,
   },
   addressText: {
     fontSize: 12,
@@ -668,11 +695,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#BBF7D0',
   },
+  ratingStarsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
   reviewRating: {
     fontSize: 12,
     fontWeight: '800',
     color: '#166534',
-    marginBottom: 2,
   },
   reviewComment: {
     fontSize: 12,
@@ -734,6 +765,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   rateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#059669',
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -745,7 +778,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   bookAgainBtn: {
-    backgroundColor: '#7C3AED',
+    backgroundColor: '#EA580C',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -794,15 +827,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   reasonOptionSelected: {
-    borderColor: '#7C3AED',
-    backgroundColor: '#EDE9FE',
+    borderColor: '#EA580C',
+    backgroundColor: '#FFEDD5',
   },
   reasonOptionText: {
     fontSize: 13,
     color: '#475569',
   },
   reasonOptionTextSelected: {
-    color: '#7C3AED',
+    color: '#EA580C',
     fontWeight: '700',
   },
   modalActions: {
@@ -835,15 +868,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     marginVertical: 14,
-  },
-  starIcon: {
-    fontSize: 34,
-  },
-  starFilled: {
-    color: '#F59E0B',
-  },
-  starEmpty: {
-    color: '#CBD5E1',
   },
   reviewInput: {
     borderWidth: 1,

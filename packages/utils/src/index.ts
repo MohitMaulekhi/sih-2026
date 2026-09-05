@@ -99,10 +99,10 @@ export const BOOKING_STATUS_CONFIG: Record<BookingStatus, StatusConfig> = {
   },
   in_progress: {
     label: 'Service In Progress',
-    bg: '#EDE9FE',
-    text: '#5B21B6',
-    border: '#DDD6FE',
-    badgeColor: '#8B5CF6',
+    bg: '#FFEDD5',
+    text: '#9A3412',
+    border: '#FED7AA',
+    badgeColor: '#EA580C',
   },
   completed: {
     label: 'Completed',

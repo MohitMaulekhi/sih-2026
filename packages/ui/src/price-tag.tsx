@@ -58,7 +58,8 @@ export const PriceTag: React.FC<PriceTagProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 6,
   },
   currentPrice: {
@@ -70,10 +71,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   currentPriceLarge: {
-    fontSize: 22,
+    fontSize: 20,
   },
   originalPrice: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#94A3B8',
     textDecorationLine: 'line-through',
     fontWeight: '500',
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   originalPriceLarge: {
-    fontSize: 15,
+    fontSize: 14,
   },
   discountBadge: {
     backgroundColor: '#DCFCE7',

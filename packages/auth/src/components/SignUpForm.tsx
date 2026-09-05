@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { UserRole } from '@repo/types';
 import { SignUpData } from '../auth-context';
+import { AlertCircle, User, Mail, Phone, MapPin, Briefcase, Lock } from 'lucide-react-native';
 
 interface SignUpFormProps {
   role: UserRole;
@@ -41,6 +42,10 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       setErrorMessage('Please enter your email address');
       return;
     }
+    if (!password.trim() || password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters long');
+      return;
+    }
     if (!phone.trim()) {
       setErrorMessage('Please enter your phone number');
       return;
@@ -50,7 +55,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     const result = await onSubmit({
       fullName: fullName.trim(),
       email: email.trim(),
-      password: password.trim() || 'password123',
+      password: password.trim(),
       phone: phone.trim(),
       city: city.trim(),
       role,
@@ -67,59 +72,72 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     <View style={styles.container}>
       {errorMessage && (
         <View style={styles.errorBox}>
-          <Text style={styles.errorText}>⚠️ {errorMessage}</Text>
+          <AlertCircle size={16} color="#F87171" style={{ marginRight: 8 }} />
+          <Text style={styles.errorText}>{errorMessage}</Text>
         </View>
       )}
 
       {/* Full Name */}
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>Full Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. Rahul Sharma"
-          placeholderTextColor="#64748B"
-          value={fullName}
-          onChangeText={setFullName}
-        />
+        <View style={styles.inputContainer}>
+          <User size={16} color="#64748B" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. Rahul Sharma"
+            placeholderTextColor="#64748B"
+            value={fullName}
+            onChangeText={setFullName}
+          />
+        </View>
       </View>
 
       {/* Email */}
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>Email Address</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. rahul@example.com"
-          placeholderTextColor="#64748B"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+        <View style={styles.inputContainer}>
+          <Mail size={16} color="#64748B" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. rahul@example.com"
+            placeholderTextColor="#64748B"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
       </View>
 
       {/* Phone */}
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>Phone Number</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="+91 98765 43210"
-          placeholderTextColor="#64748B"
-          value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
-        />
+        <View style={styles.inputContainer}>
+          <Phone size={16} color="#64748B" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="+91 98765 43210"
+            placeholderTextColor="#64748B"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
+        </View>
       </View>
 
       {/* City */}
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>City</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Bengaluru"
-          placeholderTextColor="#64748B"
-          value={city}
-          onChangeText={setCity}
-        />
+        <View style={styles.inputContainer}>
+          <MapPin size={16} color="#64748B" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Bengaluru"
+            placeholderTextColor="#64748B"
+            value={city}
+            onChangeText={setCity}
+          />
+        </View>
       </View>
 
       {/* Pro specific fields */}
@@ -127,20 +145,23 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         <>
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Years of Experience</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. 5"
-              placeholderTextColor="#64748B"
-              value={experienceYears}
-              onChangeText={setExperienceYears}
-              keyboardType="numeric"
-            />
+            <View style={styles.inputContainer}>
+              <Briefcase size={16} color="#64748B" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. 5"
+                placeholderTextColor="#64748B"
+                value={experienceYears}
+                onChangeText={setExperienceYears}
+                keyboardType="numeric"
+              />
+            </View>
           </View>
 
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Professional Bio & Skills</Text>
             <TextInput
-              style={[styles.input, styles.textArea]}
+              style={[styles.inputStandalone, styles.textArea]}
               placeholder="e.g. Certified technician specializing in AC repair & cleaning..."
               placeholderTextColor="#64748B"
               value={bio}
@@ -155,14 +176,17 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       {/* Password */}
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>Create Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="••••••••"
-          placeholderTextColor="#64748B"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+        <View style={styles.inputContainer}>
+          <Lock size={16} color="#64748B" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Minimum 6 characters"
+            placeholderTextColor="#64748B"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+        </View>
       </View>
 
       {/* Submit Button */}
@@ -192,6 +216,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   errorBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'rgba(239, 68, 68, 0.15)',
     borderWidth: 1,
     borderColor: 'rgba(239, 68, 68, 0.3)',
@@ -203,6 +229,7 @@ const styles = StyleSheet.create({
     color: '#F87171',
     fontSize: 13,
     fontWeight: '500',
+    flex: 1,
   },
   fieldGroup: {
     marginBottom: 14,
@@ -213,7 +240,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 6,
   },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0F172A',
+    borderWidth: 1,
+    borderColor: '#334155',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+  },
+  inputIcon: {
+    marginRight: 8,
+  },
   input: {
+    flex: 1,
+    paddingVertical: 12,
+    color: '#F8FAFC',
+    fontSize: 15,
+  },
+  inputStandalone: {
     backgroundColor: '#0F172A',
     borderWidth: 1,
     borderColor: '#334155',
@@ -235,7 +280,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   submitButtonCust: {
-    backgroundColor: '#7C3AED',
+    backgroundColor: '#EA580C',
   },
   submitButtonPro: {
     backgroundColor: '#10B981',

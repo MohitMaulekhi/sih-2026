@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Star } from 'lucide-react-native';
 
 interface RatingStarsProps {
   rating: number;
@@ -16,6 +17,7 @@ export const RatingStars: React.FC<RatingStarsProps> = ({
 }) => {
   const isSmall = size === 'small';
   const isLarge = size === 'large';
+  const iconSize = isSmall ? 10 : isLarge ? 14 : 12;
 
   return (
     <View style={styles.container}>
@@ -25,7 +27,7 @@ export const RatingStars: React.FC<RatingStarsProps> = ({
           isSmall && styles.badgeSmall,
           isLarge && styles.badgeLarge,
         ]}>
-        <Text style={[styles.starText, isSmall && styles.starTextSmall]}>★</Text>
+        <Star size={iconSize} color="#FFFFFF" fill="#FFFFFF" />
         <Text
           style={[
             styles.ratingText,
@@ -62,7 +64,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
-    gap: 2,
+    gap: 3,
   },
   badgeSmall: {
     paddingHorizontal: 4,
@@ -73,14 +75,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
-  },
-  starText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '900',
-  },
-  starTextSmall: {
-    fontSize: 8,
   },
   ratingText: {
     color: '#FFFFFF',

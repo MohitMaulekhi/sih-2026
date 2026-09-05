@@ -4,7 +4,6 @@ import {
   UserProfile,
   ProfessionalService,
   Booking,
-  BookingStatus,
   CreateBookingInput,
   UpdateBookingStatusInput,
   ToggleServiceOfferingInput,
@@ -12,27 +11,43 @@ import {
   BookingFilterParams,
 } from '@repo/types';
 import { generateBookingNumber } from '@repo/utils';
+import { createClient } from '@supabase/supabase-js';
 import {
   SEED_CATEGORIES,
   SEED_SERVICES,
-  SEED_PROFILES,
-  DEMO_PROFESSIONAL_SERVICES,
-  DEMO_BOOKINGS,
 } from './seed-data';
 
+const DEFAULT_SUPABASE_URL = 'https://zogktmqmoeauncwbpxqz.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'sb_publishable_iEWxkLSTfMCMxvpnax8flw_ZrTwIGyh';
+
+const supabaseUrl =
+  process.env.EXPO_PUBLIC_SUPABASE_URL ||
+  process.env.SUPABASE_URL ||
+  DEFAULT_SUPABASE_URL;
+
+const supabaseAnonKey =
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.EXPO_PUBLIC_SUPABASE_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  DEFAULT_SUPABASE_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 /**
- * Shared Reactive Data Store
- * Provides both standalone mock operations & sync interface for apps.
+ * Shared Reactive Data Store backed by Supabase & Reactive Sync
  */
 class UrbanCompanyStore {
   private categories: ServiceCategory[] = [...SEED_CATEGORIES];
   private services: Service[] = [...SEED_SERVICES];
-  private profiles: UserProfile[] = [...SEED_PROFILES];
-  private professionalServices: ProfessionalService[] = [
-    ...DEMO_PROFESSIONAL_SERVICES,
-  ];
-  private bookings: Booking[] = [...DEMO_BOOKINGS];
+  private profiles: UserProfile[] = [];
+  private professionalServices: ProfessionalService[] = [];
+  private bookings: Booking[] = [];
   private listeners: Set<() => void> = new Set();
+  private initialized = false;
+
+  constructor() {
+    this.syncFromSupabase();
+  }
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -49,6 +64,111 @@ class UrbanCompanyStore {
         console.error('Store listener error:', err);
       }
     });
+  }
+
+  async syncFromSupabase() {
+    try {
+      // 1. Fetch Categories
+      const { data: catData } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      if (catData && catData.length > 0) {
+        this.categories = catData.map((c) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          description: c.description,
+          icon: c.icon,
+          imageUrl: c.image_url,
+          sortOrder: c.sort_order,
+          isActive: c.is_active,
+        }));
+      }
+
+      // 2. Fetch Services
+      const { data: srvData } = await supabase
+        .from('services')
+        .select('*')
+        .eq('is_active', true);
+
+      if (srvData && srvData.length > 0) {
+        this.services = srvData.map((s) => ({
+          id: s.id,
+          categoryId: s.category_id,
+          title: s.title,
+          slug: s.slug,
+          shortDescription: s.short_description,
+          fullDescription: s.full_description,
+          basePrice: s.base_price,
+          discountedPrice: s.discounted_price,
+          durationMinutes: s.duration_minutes,
+          imageUrl: s.image_url,
+          features: s.features || [],
+          whatsIncluded: s.whats_included || [],
+          whatsExcluded: s.whats_excluded || [],
+          rating: Number(s.rating) || 4.85,
+          reviewsCount: s.reviews_count || 0,
+          isPopular: s.is_popular,
+          isActive: s.is_active,
+        }));
+      }
+
+      // 3. Fetch Bookings
+      const { data: bData } = await supabase
+        .from('bookings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (bData && bData.length > 0) {
+        this.bookings = bData.map((b) => ({
+          id: b.id,
+          bookingNumber: b.booking_number,
+          customerId: b.customer_id,
+          professionalId: b.professional_id,
+          serviceId: b.service_id,
+          status: b.status,
+          scheduledDate: b.scheduled_date,
+          scheduledTimeSlot: b.scheduled_time_slot,
+          totalPrice: b.total_price,
+          customerAddress: b.customer_address,
+          customerPhone: b.customer_phone,
+          customerNotes: b.customer_notes,
+          cancellationReason: b.cancellation_reason,
+          rating: b.rating,
+          reviewText: b.review_text,
+          paymentStatus: b.payment_status,
+          paymentMethod: b.payment_method,
+          createdAt: b.created_at,
+          updatedAt: b.updated_at,
+        }));
+      }
+
+      // 4. Fetch Professional Services
+      const { data: psData } = await supabase
+        .from('professional_services')
+        .select('*');
+
+      if (psData && psData.length > 0) {
+        this.professionalServices = psData.map((ps) => ({
+          id: ps.id,
+          professionalId: ps.professional_id,
+          serviceId: ps.service_id,
+          customPrice: ps.custom_price,
+          isAvailable: ps.is_available,
+          experienceNotes: ps.experience_notes,
+          completedJobsCount: ps.completed_jobs_count || 0,
+          createdAt: ps.created_at,
+        }));
+      }
+
+      this.initialized = true;
+      this.notify();
+    } catch (err) {
+      console.warn('Supabase store sync fallback to active cache:', err);
+    }
   }
 
   // --- Categories ---
@@ -117,7 +237,6 @@ class UrbanCompanyStore {
       }
     }
 
-    // Attach category object
     return result.map((service) => ({
       ...service,
       category: this.getCategoryById(service.categoryId),
@@ -141,7 +260,11 @@ class UrbanCompanyStore {
   saveProfile(profile: UserProfile): UserProfile {
     const index = this.profiles.findIndex((p) => p.id === profile.id);
     if (index >= 0) {
-      this.profiles[index] = { ...this.profiles[index], ...profile, updatedAt: new Date().toISOString() };
+      this.profiles[index] = {
+        ...this.profiles[index],
+        ...profile,
+        updatedAt: new Date().toISOString(),
+      };
     } else {
       this.profiles.push(profile);
     }
@@ -159,10 +282,10 @@ class UrbanCompanyStore {
       }));
   }
 
-  toggleServiceOffering(
+  async toggleServiceOffering(
     professionalId: string,
     input: ToggleServiceOfferingInput
-  ): ProfessionalService {
+  ): Promise<ProfessionalService> {
     const index = this.professionalServices.findIndex(
       (ps) =>
         ps.professionalId === professionalId && ps.serviceId === input.serviceId
@@ -195,6 +318,17 @@ class UrbanCompanyStore {
     }
 
     this.notify();
+
+    // Persist to Supabase in background
+    Promise.resolve(
+      supabase.from('professional_services').upsert({
+        professional_id: professionalId,
+        service_id: input.serviceId,
+        is_available: input.isAvailable,
+        custom_price: input.customPrice,
+      })
+    ).catch(() => {});
+
     return {
       ...updated,
       service: this.getServiceById(updated.serviceId),
@@ -208,7 +342,6 @@ class UrbanCompanyStore {
     if (params?.userId && params.role === 'customer') {
       result = result.filter((b) => b.customerId === params.userId);
     } else if (params?.userId && params.role === 'professional') {
-      // Professional sees jobs assigned to them OR pending open jobs
       result = result.filter(
         (b) => b.professionalId === params.userId || b.status === 'pending'
       );
@@ -234,7 +367,6 @@ class UrbanCompanyStore {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-    // Hydrate associations
     return result.map((booking) => ({
       ...booking,
       service: this.getServiceById(booking.serviceId),
@@ -268,12 +400,13 @@ class UrbanCompanyStore {
     }
 
     const price = service.discountedPrice ?? service.basePrice;
+    const bNumber = generateBookingNumber();
 
     const newBooking: Booking = {
       id: `bk-${Date.now()}`,
-      bookingNumber: generateBookingNumber(),
+      bookingNumber: bNumber,
       customerId,
-      professionalId: null, // open for professionals to accept
+      professionalId: null,
       serviceId: input.serviceId,
       status: 'pending',
       scheduledDate: input.scheduledDate,
@@ -290,6 +423,24 @@ class UrbanCompanyStore {
 
     this.bookings.unshift(newBooking);
     this.notify();
+
+    // Persist to Supabase
+    Promise.resolve(
+      supabase.from('bookings').insert({
+        booking_number: bNumber,
+        customer_id: customerId,
+        service_id: input.serviceId,
+        status: 'pending',
+        scheduled_date: input.scheduledDate,
+        scheduled_time_slot: input.scheduledTimeSlot,
+        total_price: price,
+        customer_address: input.customerAddress,
+        customer_phone: input.customerPhone,
+        customer_notes: input.customerNotes || null,
+        payment_status: 'pending',
+        payment_method: input.paymentMethod || 'cash_after_service',
+      })
+    ).catch(() => {});
 
     return {
       ...newBooking,
@@ -329,6 +480,31 @@ class UrbanCompanyStore {
 
     this.bookings[index] = updated;
     this.notify();
+
+    // Persist to Supabase
+    const updatePayload: Record<string, any> = {
+      status: input.status,
+      updated_at: new Date().toISOString(),
+    };
+    if (input.professionalId !== undefined) {
+      updatePayload.professional_id = input.professionalId;
+    }
+    if (input.cancellationReason !== undefined) {
+      updatePayload.cancellation_reason = input.cancellationReason;
+    }
+    if (input.rating !== undefined) {
+      updatePayload.rating = input.rating;
+    }
+    if (input.reviewText !== undefined) {
+      updatePayload.review_text = input.reviewText;
+    }
+    if (input.status === 'completed') {
+      updatePayload.payment_status = 'paid';
+    }
+
+    Promise.resolve(
+      supabase.from('bookings').update(updatePayload).eq('id', bookingId)
+    ).catch(() => {});
 
     return {
       ...updated,

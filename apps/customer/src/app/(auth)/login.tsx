@@ -4,30 +4,24 @@ import { useAuth, AuthLayout, LoginForm } from '@repo/auth';
 
 export default function CustomerLoginScreen() {
   const router = useRouter();
-  const { signIn, isLoading, loginAsDemo } = useAuth();
+  const { signIn, isLoading } = useAuth();
 
   const handleSignIn = async (email: string, password?: string) => {
     const result = await signIn(email, password);
     if (!result.error) {
-      router.replace('/(tabs)');
+      router.replace('/(tabs)' as any);
     }
     return result;
-  };
-
-  const handleDemoLogin = () => {
-    loginAsDemo('customer');
-    router.replace('/(tabs)');
   };
 
   return (
     <AuthLayout
       role="customer"
       title="Welcome Back"
-      subtitle="Book expert home services with 100% quality guarantee"
-      footerPrompt="New to Urban Company?"
+      subtitle="Book expert doorstep services with 100% quality guarantee"
+      footerPrompt="New to RuralClap?"
       footerActionText="Create an Account"
-      onFooterActionPress={() => router.push('/(auth)/register')}
-      onDemoLogin={handleDemoLogin}>
+      onFooterActionPress={() => router.push('/(auth)/register' as any)}>
       <LoginForm
         role="customer"
         onSubmit={handleSignIn}

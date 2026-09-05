@@ -4,17 +4,18 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TextInput,
   TouchableOpacity,
   Image,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbStore } from '@repo/db';
 import { Service, ServiceCategory } from '@repo/types';
 import { RatingStars, PriceTag, EmptyState } from '@repo/ui';
 import { formatDuration } from '@repo/utils';
+import { Search, X, Check, Clock, Sparkles } from 'lucide-react-native';
 
 export default function CustomerExploreScreen() {
   const router = useRouter();
@@ -53,7 +54,7 @@ export default function CustomerExploreScreen() {
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <Search size={16} color="#64748B" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search all services & categories..."
@@ -63,7 +64,7 @@ export default function CustomerExploreScreen() {
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Text style={styles.clearSearch}>✕</Text>
+              <X size={16} color="#94A3B8" style={styles.clearSearch} />
             </TouchableOpacity>
           )}
         </View>
@@ -79,12 +80,13 @@ export default function CustomerExploreScreen() {
               selectedCategory === 'all' && styles.chipSelected,
             ]}
             onPress={() => setSelectedCategory('all')}>
+            <Sparkles size={13} color={selectedCategory === 'all' ? '#FFFFFF' : '#EA580C'} style={{ marginRight: 4 }} />
             <Text
               style={[
                 styles.chipText,
                 selectedCategory === 'all' && styles.chipTextSelected,
               ]}>
-              🌟 All Services
+              All Services
             </Text>
           </TouchableOpacity>
 
@@ -135,7 +137,7 @@ export default function CustomerExploreScreen() {
                 styles.sortButtonText,
                 sortBy === 'rating' && styles.sortButtonTextActive,
               ]}>
-              Rating ★
+              Top Rated
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -161,7 +163,7 @@ export default function CustomerExploreScreen() {
         showsVerticalScrollIndicator={false}>
         {services.length === 0 ? (
           <EmptyState
-            icon="🔍"
+            icon="search"
             title="No Services Found"
             description="Try changing your search terms or category filter"
             actionText="Reset Filters"
@@ -176,7 +178,7 @@ export default function CustomerExploreScreen() {
               key={service.id}
               style={styles.card}
               activeOpacity={0.85}
-              onPress={() => router.push(`/service/${service.id}`)}>
+              onPress={() => router.push(`/service/${service.id}` as any)}>
               <Image
                 source={{ uri: service.imageUrl }}
                 style={styles.cardImage}
@@ -202,17 +204,23 @@ export default function CustomerExploreScreen() {
                 {/* Key Features Bullets */}
                 <View style={styles.featuresList}>
                   {service.features.slice(0, 2).map((feat, idx) => (
-                    <Text key={idx} style={styles.featureItem} numberOfLines={1}>
-                      ✓ {feat}
-                    </Text>
+                    <View key={idx} style={styles.featureItemRow}>
+                      <Check size={12} color="#16A34A" style={{ marginRight: 6 }} />
+                      <Text style={styles.featureItem} numberOfLines={1}>
+                        {feat}
+                      </Text>
+                    </View>
                   ))}
                 </View>
 
                 <View style={styles.cardFooter}>
                   <View>
-                    <Text style={styles.durationText}>
-                      ⏱️ {formatDuration(service.durationMinutes)}
-                    </Text>
+                    <View style={styles.durationRow}>
+                      <Clock size={11} color="#64748B" style={{ marginRight: 3 }} />
+                      <Text style={styles.durationText}>
+                        {formatDuration(service.durationMinutes)}
+                      </Text>
+                    </View>
                     <PriceTag
                       price={service.discountedPrice ?? service.basePrice}
                       originalPrice={service.discountedPrice ? service.basePrice : null}
@@ -223,7 +231,7 @@ export default function CustomerExploreScreen() {
                   <TouchableOpacity
                     style={styles.bookBtn}
                     activeOpacity={0.8}
-                    onPress={() => router.push(`/book/${service.id}`)}>
+                    onPress={() => router.push(`/book/${service.id}` as any)}>
                     <Text style={styles.bookBtnText}>Book Service</Text>
                   </TouchableOpacity>
                 </View>
@@ -272,7 +280,6 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   searchIcon: {
-    fontSize: 15,
     marginRight: 8,
   },
   searchInput: {
@@ -281,15 +288,16 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   clearSearch: {
-    color: '#94A3B8',
-    fontSize: 14,
     paddingHorizontal: 4,
   },
   chipsRow: {
     gap: 8,
     paddingVertical: 10,
+    alignItems: 'center',
   },
   chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#F1F5F9',
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -298,8 +306,8 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   chipSelected: {
-    backgroundColor: '#7C3AED',
-    borderColor: '#7C3AED',
+    backgroundColor: '#EA580C',
+    borderColor: '#EA580C',
   },
   chipText: {
     fontSize: 12,
@@ -328,7 +336,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F5F9',
   },
   sortButtonActive: {
-    backgroundColor: '#EDE9FE',
+    backgroundColor: '#FFEDD5',
   },
   sortButtonText: {
     fontSize: 11,
@@ -336,7 +344,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sortButtonTextActive: {
-    color: '#7C3AED',
+    color: '#EA580C',
     fontWeight: '800',
   },
   servicesScroll: {
@@ -377,7 +385,7 @@ const styles = StyleSheet.create({
   cardCategory: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#7C3AED',
+    color: '#EA580C',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -398,12 +406,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     marginBottom: 12,
-    gap: 4,
+    gap: 6,
+  },
+  featureItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   featureItem: {
     fontSize: 12,
     color: '#334155',
     fontWeight: '500',
+    flex: 1,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -411,13 +424,17 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingTop: 4,
   },
+  durationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
   durationText: {
     fontSize: 11,
     color: '#64748B',
-    marginBottom: 2,
   },
   bookBtn: {
-    backgroundColor: '#7C3AED',
+    backgroundColor: '#EA580C',
     paddingHorizontal: 16,
     paddingVertical: 9,
     borderRadius: 12,

@@ -4,19 +4,32 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   Switch,
-  Image,
   Alert,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@repo/auth';
 import { dbStore } from '@repo/db';
 import { Booking } from '@repo/types';
 import { StatusBadge } from '@repo/ui';
 import { formatCurrency, formatDate } from '@repo/utils';
+import {
+  ShieldCheck,
+  Bell,
+  Calendar,
+  Clock,
+  MapPin,
+  Check,
+  CheckCircle2,
+  Rocket,
+  Phone,
+  MessageSquare,
+  Inbox,
+  CalendarCheck,
+} from 'lucide-react-native';
 
 export default function ProfessionalDashboardScreen() {
   const router = useRouter();
@@ -39,7 +52,6 @@ export default function ProfessionalDashboardScreen() {
     return unsub;
   }, [user]);
 
-  // Separate incoming pending requests vs active scheduled jobs
   const incomingRequests = allBookings.filter((b) => b.status === 'pending');
   const activeJobs = allBookings.filter(
     (b) =>
@@ -61,10 +73,11 @@ export default function ProfessionalDashboardScreen() {
   };
 
   const handleAcceptJob = (bookingId: string) => {
+    if (!user) return;
     try {
       dbStore.updateBookingStatus(bookingId, {
         status: 'accepted',
-        professionalId: user?.id,
+        professionalId: user.id,
       });
       Alert.alert(
         'Job Accepted!',
@@ -104,11 +117,12 @@ export default function ProfessionalDashboardScreen() {
                 {user?.fullName || 'Partner'}
               </Text>
               <View style={styles.verifiedBadge}>
-                <Text style={styles.verifiedBadgeText}>✓ Pro Verified</Text>
+                <ShieldCheck size={12} color="#34D399" style={{ marginRight: 3 }} />
+                <Text style={styles.verifiedBadgeText}>Verified</Text>
               </View>
             </View>
             <Text style={styles.partnerSub}>
-              ★ {user?.rating || '4.92'} • {user?.city || 'Bengaluru'}
+              ★ {user?.rating ? Number(user.rating).toFixed(2) : '5.00'} • {user?.city || 'Bengaluru'}
             </Text>
           </View>
 
@@ -124,7 +138,7 @@ export default function ProfessionalDashboardScreen() {
                   styles.onlineStatusText,
                   isOnline ? styles.onlineTextActive : styles.onlineTextInactive,
                 ]}>
-                {isOnline ? '🟢 ONLINE' : '🔴 OFFLINE'}
+                {isOnline ? 'ONLINE' : 'OFFLINE'}
               </Text>
               <Text style={styles.onlineSubText}>
                 {isOnline ? 'Receiving Jobs' : 'Paused'}
@@ -144,36 +158,38 @@ export default function ProfessionalDashboardScreen() {
           <View style={styles.metricCard}>
             <Text style={styles.metricLabel}>Total Payout</Text>
             <Text style={styles.metricNumber}>
-              {formatCurrency(totalEarnings || 4250)}
+              {formatCurrency(totalEarnings)}
             </Text>
-            <Text style={styles.metricGrowth}>+18% this week</Text>
+            <Text style={styles.metricGrowth}>Lifetime Earnings</Text>
           </View>
 
           <View style={styles.metricCard}>
             <Text style={styles.metricLabel}>Jobs Done</Text>
             <Text style={styles.metricNumber}>
-              {completedJobs.length || 14}
+              {completedJobs.length}
             </Text>
-            <Text style={styles.metricGrowth}>★ 4.9 Rating</Text>
+            <Text style={styles.metricGrowth}>
+              ★ {user?.rating ? Number(user.rating).toFixed(1) : '5.0'} Rating
+            </Text>
           </View>
 
           <View style={styles.metricCard}>
             <Text style={styles.metricLabel}>Active Jobs</Text>
             <Text style={styles.metricNumber}>{activeJobs.length}</Text>
-            <Text style={styles.metricGrowth}>Scheduled today</Text>
+            <Text style={styles.metricGrowth}>Scheduled Today</Text>
           </View>
 
           <View style={styles.metricCard}>
-            <Text style={styles.metricLabel}>Acceptance</Text>
-            <Text style={styles.metricNumber}>98%</Text>
-            <Text style={styles.metricGrowth}>Top Tier Partner</Text>
+            <Text style={styles.metricLabel}>Pending Leads</Text>
+            <Text style={styles.metricNumber}>{incomingRequests.length}</Text>
+            <Text style={styles.metricGrowth}>Ready to Accept</Text>
           </View>
         </View>
 
         {/* Incoming Leads / Job Requests Queue */}
         <View style={styles.sectionHeaderRow}>
           <View style={styles.sectionTitleRow}>
-            <Text style={styles.sectionEmoji}>🔔</Text>
+            <Bell size={18} color="#60A5FA" style={{ marginRight: 6 }} />
             <Text style={styles.sectionTitle}>Incoming Job Requests</Text>
           </View>
           <View style={styles.countBadge}>
@@ -183,7 +199,7 @@ export default function ProfessionalDashboardScreen() {
 
         {incomingRequests.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyEmoji}>☕</Text>
+            <Inbox size={32} color="#64748B" style={{ marginBottom: 8 }} />
             <Text style={styles.emptyTitle}>No Pending Requests</Text>
             <Text style={styles.emptySubtitle}>
               You are all caught up! New customer bookings in your area will appear here in real-time.
@@ -211,16 +227,22 @@ export default function ProfessionalDashboardScreen() {
                 </View>
 
                 <View style={styles.requestMetaRow}>
-                  <Text style={styles.requestMeta}>
-                    📅 {formatDate(req.scheduledDate)}
-                  </Text>
-                  <Text style={styles.requestMeta}>
-                    ⏱️ {req.scheduledTimeSlot}
-                  </Text>
+                  <View style={styles.metaItem}>
+                    <Calendar size={12} color="#CBD5E1" style={{ marginRight: 4 }} />
+                    <Text style={styles.requestMeta}>
+                      {formatDate(req.scheduledDate)}
+                    </Text>
+                  </View>
+                  <View style={styles.metaItem}>
+                    <Clock size={12} color="#CBD5E1" style={{ marginRight: 4 }} />
+                    <Text style={styles.requestMeta}>
+                      {req.scheduledTimeSlot}
+                    </Text>
+                  </View>
                 </View>
 
                 <View style={styles.requestLocationRow}>
-                  <Text style={styles.requestLocationIcon}>📍</Text>
+                  <MapPin size={13} color="#94A3B8" style={{ marginRight: 6, marginTop: 1 }} />
                   <Text style={styles.requestLocationText} numberOfLines={2}>
                     {req.customerAddress}
                   </Text>
@@ -228,8 +250,9 @@ export default function ProfessionalDashboardScreen() {
 
                 {req.customerNotes && (
                   <View style={styles.customerNotesBox}>
+                    <MessageSquare size={13} color="#FCD34D" style={{ marginRight: 6, marginTop: 1 }} />
                     <Text style={styles.customerNotesText}>
-                      💬 Note: "{req.customerNotes}"
+                      "{req.customerNotes}"
                     </Text>
                   </View>
                 )}
@@ -240,7 +263,8 @@ export default function ProfessionalDashboardScreen() {
                     style={styles.acceptBtn}
                     activeOpacity={0.8}
                     onPress={() => handleAcceptJob(req.id)}>
-                    <Text style={styles.acceptBtnText}>✓ Accept Job</Text>
+                    <Check size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                    <Text style={styles.acceptBtnText}>Accept Job</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -251,7 +275,7 @@ export default function ProfessionalDashboardScreen() {
         {/* Active & In-Progress Jobs */}
         <View style={styles.sectionHeaderRow}>
           <View style={styles.sectionTitleRow}>
-            <Text style={styles.sectionEmoji}>🛠️</Text>
+            <CalendarCheck size={18} color="#34D399" style={{ marginRight: 6 }} />
             <Text style={styles.sectionTitle}>Today's Active Schedule</Text>
           </View>
           <View style={styles.countBadge}>
@@ -261,7 +285,7 @@ export default function ProfessionalDashboardScreen() {
 
         {activeJobs.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyEmoji}>📅</Text>
+            <Calendar size={32} color="#64748B" style={{ marginBottom: 8 }} />
             <Text style={styles.emptyTitle}>No Active Jobs</Text>
             <Text style={styles.emptySubtitle}>
               Accept incoming requests above to start servicing today.
@@ -284,22 +308,24 @@ export default function ProfessionalDashboardScreen() {
                 </View>
 
                 <View style={styles.jobDetailsRow}>
+                  <Clock size={12} color="#CBD5E1" style={{ marginRight: 4 }} />
                   <Text style={styles.jobDetailText}>
-                    ⏱️ {job.scheduledTimeSlot} • {formatDate(job.scheduledDate)}
+                    {job.scheduledTimeSlot} • {formatDate(job.scheduledDate)}
                   </Text>
                 </View>
 
                 <View style={styles.jobAddressRow}>
-                  <Text style={styles.jobAddressIcon}>📍</Text>
+                  <MapPin size={13} color="#94A3B8" style={{ marginRight: 6, marginTop: 1 }} />
                   <Text style={styles.jobAddressText}>
                     {job.customerAddress}
                   </Text>
                 </View>
 
-                {/* Customer Contact button */}
+                {/* Customer Contact */}
                 <View style={styles.contactBar}>
+                  <Phone size={13} color="#60A5FA" style={{ marginRight: 6 }} />
                   <Text style={styles.phoneLabel}>
-                    📞 Contact: {job.customerPhone}
+                    Contact: {job.customerPhone}
                   </Text>
                 </View>
 
@@ -310,8 +336,9 @@ export default function ProfessionalDashboardScreen() {
                       style={styles.startJobBtn}
                       activeOpacity={0.8}
                       onPress={() => handleStartJob(job.id)}>
+                      <Rocket size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
                       <Text style={styles.startJobBtnText}>
-                        🚀 Start Service
+                        Start Service
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -321,8 +348,9 @@ export default function ProfessionalDashboardScreen() {
                       style={styles.completeJobBtn}
                       activeOpacity={0.8}
                       onPress={() => handleCompleteJob(job.id)}>
+                      <CheckCircle2 size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
                       <Text style={styles.completeJobBtnText}>
-                        ✅ Mark Completed & Collect{' '}
+                        Mark Completed & Collect{' '}
                         {formatCurrency(job.totalPrice)}
                       </Text>
                     </TouchableOpacity>
@@ -372,6 +400,8 @@ const styles = StyleSheet.create({
     color: '#F8FAFC',
   },
   verifiedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'rgba(16, 185, 129, 0.2)',
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -458,10 +488,6 @@ const styles = StyleSheet.create({
   sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-  },
-  sectionEmoji: {
-    fontSize: 18,
   },
   sectionTitle: {
     fontSize: 17,
@@ -486,10 +512,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#334155',
-  },
-  emptyEmoji: {
-    fontSize: 32,
-    marginBottom: 8,
   },
   emptyTitle: {
     fontSize: 16,
@@ -556,6 +578,10 @@ const styles = StyleSheet.create({
     gap: 14,
     marginBottom: 8,
   },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   requestMeta: {
     fontSize: 12,
     color: '#CBD5E1',
@@ -564,11 +590,7 @@ const styles = StyleSheet.create({
   requestLocationRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 6,
     marginBottom: 10,
-  },
-  requestLocationIcon: {
-    fontSize: 13,
   },
   requestLocationText: {
     fontSize: 12,
@@ -577,6 +599,8 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   customerNotesBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     backgroundColor: '#0F172A',
     padding: 10,
     borderRadius: 10,
@@ -588,18 +612,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#FCD34D',
     fontStyle: 'italic',
+    flex: 1,
   },
   requestActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
   acceptBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#10B981',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 12,
     width: '100%',
-    alignItems: 'center',
   },
   acceptBtnText: {
     color: '#FFFFFF',
@@ -631,6 +658,8 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   jobDetailsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 6,
   },
   jobDetailText: {
@@ -641,11 +670,7 @@ const styles = StyleSheet.create({
   jobAddressRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 6,
     marginBottom: 12,
-  },
-  jobAddressIcon: {
-    fontSize: 13,
   },
   jobAddressText: {
     fontSize: 12,
@@ -654,6 +679,8 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   contactBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#0F172A',
     padding: 10,
     borderRadius: 10,
@@ -669,11 +696,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   startJobBtn: {
-    backgroundColor: '#8B5CF6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EA580C',
     paddingVertical: 12,
     borderRadius: 12,
     flex: 1,
-    alignItems: 'center',
   },
   startJobBtnText: {
     color: '#FFFFFF',
@@ -681,11 +710,13 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   completeJobBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#10B981',
     paddingVertical: 12,
     borderRadius: 12,
     flex: 1,
-    alignItems: 'center',
   },
   completeJobBtnText: {
     color: '#FFFFFF',

@@ -4,17 +4,18 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   Switch,
   Image,
   Alert,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@repo/auth';
 import { dbStore } from '@repo/db';
 import { Service, ServiceCategory, ProfessionalService } from '@repo/types';
 import { formatCurrency, formatDuration } from '@repo/utils';
+import { Zap, Clock, Wrench } from 'lucide-react-native';
 
 export default function ProfessionalServicesScreen() {
   const { user } = useAuth();
@@ -80,14 +81,15 @@ export default function ProfessionalServicesScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Service Offerings</Text>
         <Text style={styles.headerSubtitle}>
-          Select which services you can fulfill to get leads
+          Select which services you can fulfill to receive customer requests
         </Text>
 
         {/* Stats banner */}
         <View style={styles.activeBanner}>
           <View style={styles.activeBadge}>
+            <Zap size={12} color="#34D399" style={{ marginRight: 4 }} />
             <Text style={styles.activeBadgeText}>
-              ⚡ {activeCount} Services Active
+              {activeCount} Services Active
             </Text>
           </View>
           <Text style={styles.activeSub}>
@@ -176,9 +178,12 @@ export default function ProfessionalServicesScreen() {
 
                 <View style={styles.serviceFooter}>
                   <View>
-                    <Text style={styles.durationText}>
-                      ⏱️ {formatDuration(service.durationMinutes)}
-                    </Text>
+                    <View style={styles.durationRow}>
+                      <Clock size={11} color="#64748B" style={{ marginRight: 3 }} />
+                      <Text style={styles.durationText}>
+                        {formatDuration(service.durationMinutes)}
+                      </Text>
+                    </View>
                     <Text style={styles.priceText}>
                       Payout: {formatCurrency(price)}
                     </Text>
@@ -245,6 +250,8 @@ const styles = StyleSheet.create({
     borderColor: '#334155',
   },
   activeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'rgba(16, 185, 129, 0.2)',
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -342,6 +349,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+  },
+  durationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   durationText: {
     fontSize: 11,

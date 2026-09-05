@@ -4,19 +4,26 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TextInput,
   TouchableOpacity,
   Image,
   Alert,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '@repo/auth';
 import { dbStore } from '@repo/db';
 import { Service, PaymentMethod } from '@repo/types';
 import { DateSlotPicker, PriceTag } from '@repo/ui';
 import { formatCurrency, AVAILABLE_TIME_SLOTS } from '@repo/utils';
+import {
+  CheckCircle2,
+  Banknote,
+  QrCode,
+  ArrowRight,
+  Sparkles,
+} from 'lucide-react-native';
 
 export default function BookServiceScreen() {
   const { serviceId } = useLocalSearchParams<{ serviceId: string }>();
@@ -64,6 +71,11 @@ export default function BookServiceScreen() {
   const finalPrice = service.discountedPrice ?? service.basePrice;
 
   const handleConfirmBooking = () => {
+    if (!user) {
+      Alert.alert('Sign in required', 'Please sign in to place a booking.');
+      router.push('/(auth)/login' as any);
+      return;
+    }
     if (!address.trim()) {
       Alert.alert('Missing Address', 'Please provide a valid service address');
       return;
@@ -75,7 +87,7 @@ export default function BookServiceScreen() {
 
     setIsSubmitting(true);
     try {
-      const newBooking = dbStore.createBooking(user?.id || 'user-cust-001', {
+      const newBooking = dbStore.createBooking(user.id, {
         serviceId: service.id,
         scheduledDate: selectedDate,
         scheduledTimeSlot: selectedTimeSlot,
@@ -99,7 +111,7 @@ export default function BookServiceScreen() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.successContainer}>
           <View style={styles.successCircle}>
-            <Text style={styles.successIcon}>🎉</Text>
+            <CheckCircle2 size={48} color="#16A34A" />
           </View>
           <Text style={styles.successTitle}>Booking Confirmed!</Text>
           <Text style={styles.bookingRefText}>
@@ -107,27 +119,28 @@ export default function BookServiceScreen() {
           </Text>
           <Text style={styles.successDesc}>
             Your request for <Text style={{ fontWeight: '800' }}>{service.title}</Text> has
-            been placed successfully for{' '}
+            been confirmed for{' '}
             <Text style={{ fontWeight: '700' }}>
               {selectedDate} ({selectedTimeSlot})
             </Text>
-            . We are assigning the best rated professional to your doorstep.
+            . We are assigning a top-rated certified technician.
           </Text>
 
           <TouchableOpacity
             style={styles.viewBookingsBtn}
             activeOpacity={0.85}
             onPress={() => {
-              router.replace('/(tabs)/bookings');
+              router.replace('/(tabs)/bookings' as any);
             }}>
-            <Text style={styles.viewBookingsBtnText}>Go to My Bookings ➔</Text>
+            <Text style={styles.viewBookingsBtnText}>Go to My Bookings</Text>
+            <ArrowRight size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.homeBtn}
             activeOpacity={0.7}
             onPress={() => {
-              router.replace('/(tabs)');
+              router.replace('/(tabs)' as any);
             }}>
             <Text style={styles.homeBtnText}>Back to Home</Text>
           </TouchableOpacity>
@@ -220,7 +233,7 @@ export default function BookServiceScreen() {
             </Text>
             <TextInput
               style={styles.textInput}
-              placeholder="e.g. Please bring an extension ladder / Ring bell twice..."
+              placeholder="e.g. Please ring bell twice / bringing ladder helpful..."
               placeholderTextColor="#94A3B8"
               value={notes}
               onChangeText={setNotes}
@@ -244,7 +257,7 @@ export default function BookServiceScreen() {
                 styles.paymentOptionSelected,
             ]}
             onPress={() => setPaymentMethod('cash_after_service')}>
-            <Text style={styles.paymentEmoji}>💵</Text>
+            <Banknote size={24} color="#EA580C" />
             <View style={styles.paymentInfo}>
               <Text style={styles.paymentTitle}>Pay After Service</Text>
               <Text style={styles.paymentSub}>
@@ -266,7 +279,7 @@ export default function BookServiceScreen() {
               paymentMethod === 'upi' && styles.paymentOptionSelected,
             ]}
             onPress={() => setPaymentMethod('upi')}>
-            <Text style={styles.paymentEmoji}>📱</Text>
+            <QrCode size={24} color="#EA580C" />
             <View style={styles.paymentInfo}>
               <Text style={styles.paymentTitle}>Instant UPI / QR</Text>
               <Text style={styles.paymentSub}>
@@ -323,8 +336,9 @@ export default function BookServiceScreen() {
           onPress={handleConfirmBooking}
           disabled={isSubmitting}>
           <Text style={styles.confirmBtnText}>
-            {isSubmitting ? 'Placing Request...' : 'Confirm & Book Now ➔'}
+            {isSubmitting ? 'Placing Request...' : 'Confirm & Book Now'}
           </Text>
+          <ArrowRight size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -371,7 +385,7 @@ const styles = StyleSheet.create({
   serviceMiniCategory: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#7C3AED',
+    color: '#EA580C',
     textTransform: 'uppercase',
   },
   serviceMiniTitle: {
@@ -397,7 +411,7 @@ const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: '#7C3AED',
+    backgroundColor: '#EA580C',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -446,11 +460,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   paymentOptionSelected: {
-    borderColor: '#7C3AED',
-    backgroundColor: '#EDE9FE',
-  },
-  paymentEmoji: {
-    fontSize: 22,
+    borderColor: '#EA580C',
+    backgroundColor: '#FFEDD5',
   },
   paymentInfo: {
     flex: 1,
@@ -473,8 +484,8 @@ const styles = StyleSheet.create({
     borderColor: '#CBD5E1',
   },
   radioCircleSelected: {
-    borderColor: '#7C3AED',
-    backgroundColor: '#7C3AED',
+    borderColor: '#EA580C',
+    backgroundColor: '#EA580C',
   },
   billSummaryTitle: {
     fontSize: 15,
@@ -520,7 +531,7 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#7C3AED',
+    color: '#EA580C',
   },
   bottomBar: {
     position: 'absolute',
@@ -558,8 +569,10 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   confirmBtn: {
-    backgroundColor: '#7C3AED',
-    paddingHorizontal: 22,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EA580C',
+    paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 14,
   },
@@ -586,9 +599,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  successIcon: {
-    fontSize: 40,
-  },
   successTitle: {
     fontSize: 24,
     fontWeight: '900',
@@ -599,7 +609,7 @@ const styles = StyleSheet.create({
   bookingRefText: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#7C3AED',
+    color: '#EA580C',
     marginBottom: 16,
   },
   successDesc: {
@@ -611,13 +621,15 @@ const styles = StyleSheet.create({
     maxWidth: 320,
   },
   viewBookingsBtn: {
-    backgroundColor: '#7C3AED',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EA580C',
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 14,
     width: '100%',
     maxWidth: 300,
-    alignItems: 'center',
     marginBottom: 12,
   },
   viewBookingsBtnText: {

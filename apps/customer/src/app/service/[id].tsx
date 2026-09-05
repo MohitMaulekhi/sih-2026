@@ -4,16 +4,24 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   Image,
   TouchableOpacity,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { dbStore } from '@repo/db';
 import { Service } from '@repo/types';
 import { RatingStars, PriceTag } from '@repo/ui';
 import { formatDuration } from '@repo/utils';
+import {
+  Clock,
+  ShieldCheck,
+  Zap,
+  Check,
+  X,
+  ArrowRight,
+} from 'lucide-react-native';
 
 export default function ServiceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -53,13 +61,15 @@ export default function ServiceDetailScreen() {
         <View style={styles.contentContainer}>
           {/* Header & Rating */}
           <View style={styles.categoryRow}>
-            <Text style={styles.categoryText}>
-              {service.category?.name || 'Home Service'}
-            </Text>
+            <View style={styles.categoryBadgeContainer}>
+              <Text style={styles.categoryText} numberOfLines={1}>
+                {service.category?.name || 'Home Service'}
+              </Text>
+            </View>
             <RatingStars
               rating={service.rating}
               reviewsCount={service.reviewsCount}
-              size="medium"
+              size="small"
             />
           </View>
 
@@ -70,23 +80,32 @@ export default function ServiceDetailScreen() {
           <View style={styles.metricsBox}>
             <View style={styles.metricItem}>
               <Text style={styles.metricLabel}>Price</Text>
-              <PriceTag
-                price={finalPrice}
-                originalPrice={service.discountedPrice ? service.basePrice : null}
-                size="large"
-              />
+              <Text style={styles.metricPriceText}>
+                ₹{finalPrice}
+              </Text>
+              {service.discountedPrice && (
+                <Text style={styles.metricOriginalPrice}>
+                  ₹{service.basePrice}
+                </Text>
+              )}
             </View>
             <View style={styles.metricDivider} />
             <View style={styles.metricItem}>
               <Text style={styles.metricLabel}>Duration</Text>
-              <Text style={styles.metricValue}>
-                ⏱️ {formatDuration(service.durationMinutes)}
-              </Text>
+              <View style={styles.metricValueRow}>
+                <Clock size={13} color="#1E293B" style={{ marginRight: 3 }} />
+                <Text style={styles.metricValue}>
+                  {formatDuration(service.durationMinutes)}
+                </Text>
+              </View>
             </View>
             <View style={styles.metricDivider} />
             <View style={styles.metricItem}>
               <Text style={styles.metricLabel}>Warranty</Text>
-              <Text style={styles.metricValue}>🛡️ 30 Days</Text>
+              <View style={styles.metricValueRow}>
+                <ShieldCheck size={13} color="#1E293B" style={{ marginRight: 3 }} />
+                <Text style={styles.metricValue}>30 Days</Text>
+              </View>
             </View>
           </View>
 
@@ -103,7 +122,7 @@ export default function ServiceDetailScreen() {
               <View style={styles.featuresContainer}>
                 {service.features.map((feat, idx) => (
                   <View key={idx} style={styles.featureRow}>
-                    <Text style={styles.featureIcon}>⚡</Text>
+                    <Zap size={14} color="#EA580C" style={{ marginRight: 8 }} />
                     <Text style={styles.featureText}>{feat}</Text>
                   </View>
                 ))}
@@ -118,7 +137,7 @@ export default function ServiceDetailScreen() {
               <View style={styles.includedCard}>
                 {service.whatsIncluded.map((item, idx) => (
                   <View key={idx} style={styles.includedRow}>
-                    <Text style={styles.checkIcon}>✓</Text>
+                    <Check size={16} color="#16A34A" style={{ marginRight: 8, marginTop: 1 }} />
                     <Text style={styles.includedText}>{item}</Text>
                   </View>
                 ))}
@@ -133,7 +152,7 @@ export default function ServiceDetailScreen() {
               <View style={styles.excludedCard}>
                 {service.whatsExcluded.map((item, idx) => (
                   <View key={idx} style={styles.excludedRow}>
-                    <Text style={styles.crossIcon}>✕</Text>
+                    <X size={15} color="#DC2626" style={{ marginRight: 8, marginTop: 1 }} />
                     <Text style={styles.excludedText}>{item}</Text>
                   </View>
                 ))}
@@ -141,16 +160,19 @@ export default function ServiceDetailScreen() {
             </View>
           )}
 
-          {/* Urban Company Assurance */}
+          {/* RuralClap Assurance */}
           <View style={styles.assuranceBox}>
-            <Text style={styles.assuranceTitle}>
-              Urban Company Service Guarantee
-            </Text>
+            <View style={styles.assuranceHeader}>
+              <ShieldCheck size={18} color="#EA580C" style={{ marginRight: 6 }} />
+              <Text style={styles.assuranceTitle}>
+                RuralClap Service Guarantee
+              </Text>
+            </View>
             <Text style={styles.assuranceSub}>
-              • Background checked & 100% vaccinated professionals{'\n'}
+              • Background checked & 100% verified professionals{'\n'}
               • Standardized transparent pricing{'\n'}
-              • Up to ₹10,000 damage insurance cover{'\n'}
-              • Free inspection / rework if you are unsatisfied
+              • Up to ₹10,000 damage protection cover{'\n'}
+              • Free inspection & rework if unsatisfied
             </Text>
           </View>
         </View>
@@ -158,20 +180,21 @@ export default function ServiceDetailScreen() {
 
       {/* Sticky Bottom Booking Bar */}
       <View style={styles.bottomBar}>
-        <View>
-          <Text style={styles.bottomBarPriceLabel}>Total Amount</Text>
+        <View style={styles.bottomBarPriceBox}>
+          <Text style={styles.bottomBarPriceLabel}>Total Payable</Text>
           <PriceTag
             price={finalPrice}
             originalPrice={service.discountedPrice ? service.basePrice : null}
-            size="large"
+            size="medium"
           />
         </View>
 
         <TouchableOpacity
           style={styles.bookCtaButton}
           activeOpacity={0.85}
-          onPress={() => router.push(`/book/${service.id}`)}>
-          <Text style={styles.bookCtaText}>Book Service ➔</Text>
+          onPress={() => router.push(`/book/${service.id}` as any)}>
+          <Text style={styles.bookCtaText}>Book Service</Text>
+          <ArrowRight size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -193,33 +216,41 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   scrollContent: {
-    paddingBottom: 110,
+    paddingBottom: 130,
   },
   heroImage: {
     width: '100%',
-    height: 240,
+    height: 220,
+    backgroundColor: '#F1F5F9',
   },
   contentContainer: {
-    padding: 20,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 20,
   },
   categoryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
     marginBottom: 8,
+  },
+  categoryBadgeContainer: {
+    flexShrink: 1,
   },
   categoryText: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#7C3AED',
+    color: '#EA580C',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   serviceTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
     color: '#0F172A',
-    lineHeight: 28,
+    lineHeight: 26,
     marginBottom: 6,
   },
   shortDescription: {
@@ -231,8 +262,9 @@ const styles = StyleSheet.create({
   metricsBox: {
     flexDirection: 'row',
     backgroundColor: '#F8FAFC',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0',
     marginBottom: 20,
@@ -241,32 +273,47 @@ const styles = StyleSheet.create({
   },
   metricItem: {
     flex: 1,
+    alignItems: 'center',
   },
   metricLabel: {
     fontSize: 11,
     color: '#94A3B8',
     fontWeight: '700',
-    marginBottom: 4,
+    marginBottom: 2,
+  },
+  metricPriceText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  metricOriginalPrice: {
+    fontSize: 11,
+    color: '#94A3B8',
+    textDecorationLine: 'line-through',
+  },
+  metricValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   metricValue: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
     color: '#1E293B',
   },
   metricDivider: {
     width: 1,
-    height: '100%',
+    height: 32,
     backgroundColor: '#E2E8F0',
-    marginHorizontal: 10,
+    marginHorizontal: 4,
   },
   section: {
-    marginBottom: 22,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '800',
     color: '#0F172A',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   fullDescText: {
     fontSize: 14,
@@ -284,10 +331,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    gap: 10,
-  },
-  featureIcon: {
-    fontSize: 14,
   },
   featureText: {
     fontSize: 13,
@@ -297,21 +340,15 @@ const styles = StyleSheet.create({
   },
   includedCard: {
     backgroundColor: '#F0FDF4',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 14,
     borderWidth: 1,
     borderColor: '#BBF7D0',
-    gap: 10,
+    gap: 8,
   },
   includedRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 10,
-  },
-  checkIcon: {
-    color: '#16A34A',
-    fontSize: 15,
-    fontWeight: '900',
   },
   includedText: {
     fontSize: 13,
@@ -322,21 +359,15 @@ const styles = StyleSheet.create({
   },
   excludedCard: {
     backgroundColor: '#FEF2F2',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 14,
     borderWidth: 1,
     borderColor: '#FECACA',
-    gap: 10,
+    gap: 8,
   },
   excludedRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 10,
-  },
-  crossIcon: {
-    color: '#DC2626',
-    fontSize: 14,
-    fontWeight: '900',
   },
   excludedText: {
     fontSize: 13,
@@ -346,21 +377,25 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   assuranceBox: {
-    backgroundColor: '#FAF5FF',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: '#FFF7ED',
+    borderRadius: 14,
+    padding: 14,
     borderWidth: 1,
-    borderColor: '#E9D5FF',
+    borderColor: '#FED7AA',
+  },
+  assuranceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
   },
   assuranceTitle: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#6B21A8',
-    marginBottom: 6,
+    color: '#9A3412',
   },
   assuranceSub: {
     fontSize: 12,
-    color: '#7E22CE',
+    color: '#C2410C',
     lineHeight: 20,
   },
   bottomBar: {
@@ -371,37 +406,44 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: Platform.OS === 'ios' ? 32 : 16,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.08,
         shadowRadius: 8,
       },
       android: { elevation: 8 },
       web: { boxShadow: '0 -4px 16px rgba(0,0,0,0.06)' },
     }),
   },
+  bottomBarPriceBox: {
+    flex: 1,
+  },
   bottomBarPriceLabel: {
     fontSize: 11,
     color: '#94A3B8',
     fontWeight: '600',
+    marginBottom: 2,
   },
   bookCtaButton: {
-    backgroundColor: '#7C3AED',
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EA580C',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
   },
   bookCtaText: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
   },
 });

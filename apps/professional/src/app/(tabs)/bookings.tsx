@@ -4,16 +4,26 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@repo/auth';
 import { dbStore } from '@repo/db';
 import { Booking } from '@repo/types';
 import { StatusBadge, EmptyState } from '@repo/ui';
 import { formatCurrency, formatDate } from '@repo/utils';
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Phone,
+  Check,
+  Rocket,
+  CheckCircle2,
+  MessageSquare,
+} from 'lucide-react-native';
 
 export default function ProfessionalBookingsScreen() {
   const { user } = useAuth();
@@ -47,13 +57,14 @@ export default function ProfessionalBookingsScreen() {
     if (activeTab === 'completed') {
       return b.professionalId === user?.id && b.status === 'completed';
     }
-    return true; // 'all'
+    return true;
   });
 
   const handleAcceptJob = (bookingId: string) => {
+    if (!user) return;
     dbStore.updateBookingStatus(bookingId, {
       status: 'accepted',
-      professionalId: user?.id,
+      professionalId: user.id,
     });
     Alert.alert('Job Accepted!', 'Booking added to your active schedule.');
   };
@@ -148,7 +159,7 @@ export default function ProfessionalBookingsScreen() {
         {filtered.length === 0 ? (
           <View style={styles.emptyContainer}>
             <EmptyState
-              icon="📋"
+              icon="clipboard"
               title="No Bookings in This Tab"
               description="New bookings and customer assignments will be tracked here."
             />
@@ -171,7 +182,7 @@ export default function ProfessionalBookingsScreen() {
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Customer:</Text>
                 <Text style={styles.infoValue}>
-                  {booking.customer?.fullName || 'Valued Customer'}
+                  {booking.customer?.fullName || 'Customer'}
                 </Text>
               </View>
 
@@ -198,8 +209,9 @@ export default function ProfessionalBookingsScreen() {
 
               {booking.customerNotes && (
                 <View style={styles.notesBox}>
+                  <MessageSquare size={13} color="#FCD34D" style={{ marginRight: 6, marginTop: 1 }} />
                   <Text style={styles.notesText}>
-                    💬 "{booking.customerNotes}"
+                    "{booking.customerNotes}"
                   </Text>
                 </View>
               )}
@@ -218,7 +230,8 @@ export default function ProfessionalBookingsScreen() {
                     style={styles.actionBtnGreen}
                     activeOpacity={0.8}
                     onPress={() => handleAcceptJob(booking.id)}>
-                    <Text style={styles.actionBtnText}>Accept Job ➔</Text>
+                    <Check size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
+                    <Text style={styles.actionBtnText}>Accept Job</Text>
                   </TouchableOpacity>
                 )}
 
@@ -227,7 +240,8 @@ export default function ProfessionalBookingsScreen() {
                     style={styles.actionBtnPurple}
                     activeOpacity={0.8}
                     onPress={() => handleStartJob(booking.id)}>
-                    <Text style={styles.actionBtnText}>Start Service 🚀</Text>
+                    <Rocket size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
+                    <Text style={styles.actionBtnText}>Start Service</Text>
                   </TouchableOpacity>
                 )}
 
@@ -236,7 +250,8 @@ export default function ProfessionalBookingsScreen() {
                     style={styles.actionBtnGreen}
                     activeOpacity={0.8}
                     onPress={() => handleCompleteJob(booking.id)}>
-                    <Text style={styles.actionBtnText}>Mark Complete ✅</Text>
+                    <CheckCircle2 size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
+                    <Text style={styles.actionBtnText}>Mark Complete</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -275,22 +290,25 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 4,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 1,
+    borderBottomColor: '#334155',
     gap: 4,
+    marginTop: 4,
   },
   tabBtn: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
   },
   tabBtnActive: {
-    backgroundColor: '#1E293B',
+    borderBottomColor: '#10B981',
+    borderBottomWidth: 2,
   },
   tabBtnText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
     color: '#94A3B8',
   },
@@ -358,6 +376,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   notesBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     backgroundColor: '#0F172A',
     padding: 10,
     borderRadius: 10,
@@ -368,6 +388,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#FCD34D',
     fontStyle: 'italic',
+    flex: 1,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -390,13 +411,17 @@ const styles = StyleSheet.create({
     color: '#34D399',
   },
   actionBtnGreen: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#10B981',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 10,
   },
   actionBtnPurple: {
-    backgroundColor: '#8B5CF6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EA580C',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 10,

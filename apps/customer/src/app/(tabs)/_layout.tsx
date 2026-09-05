@@ -1,23 +1,29 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Text, View, StyleSheet, Platform } from 'react-native';
+import { Home, Compass, Calendar, User } from 'lucide-react-native';
 
 interface TabIconProps {
   focused: boolean;
-  icon: string;
+  IconComponent: React.ComponentType<{ size: number; color: string; strokeWidth?: number }>;
   label: string;
 }
 
-const TabIcon: React.FC<TabIconProps> = ({ focused, icon, label }) => {
+const TabIcon: React.FC<TabIconProps> = ({ focused, IconComponent, label }) => {
+  const activeColor = '#EA580C';
+  const inactiveColor = '#64748B';
+
   return (
     <View style={styles.tabItem}>
-      <Text style={[styles.tabEmoji, focused && styles.tabEmojiFocused]}>
-        {icon}
-      </Text>
+      <IconComponent
+        size={22}
+        color={focused ? activeColor : inactiveColor}
+        strokeWidth={focused ? 2.5 : 2}
+      />
       <Text
         style={[
           styles.tabLabel,
-          { color: focused ? '#7C3AED' : '#64748B' },
+          { color: focused ? activeColor : inactiveColor },
           focused && styles.tabLabelFocused,
         ]}>
         {label}
@@ -37,7 +43,7 @@ export default function CustomerTabsLayout() {
           borderTopColor: '#E2E8F0',
           borderTopWidth: 1,
           height: Platform.OS === 'ios' ? 84 : 64,
-          paddingTop: 6,
+          paddingTop: 8,
           paddingBottom: Platform.OS === 'ios' ? 24 : 8,
           ...Platform.select({
             web: {
@@ -51,7 +57,7 @@ export default function CustomerTabsLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="🏠" label="Home" />
+            <TabIcon focused={focused} IconComponent={Home} label="Home" />
           ),
         }}
       />
@@ -60,7 +66,7 @@ export default function CustomerTabsLayout() {
         options={{
           title: 'Explore',
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="🔍" label="Explore" />
+            <TabIcon focused={focused} IconComponent={Compass} label="Explore" />
           ),
         }}
       />
@@ -69,7 +75,7 @@ export default function CustomerTabsLayout() {
         options={{
           title: 'Bookings',
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="📅" label="Bookings" />
+            <TabIcon focused={focused} IconComponent={Calendar} label="Bookings" />
           ),
         }}
       />
@@ -78,7 +84,7 @@ export default function CustomerTabsLayout() {
         options={{
           title: 'Account',
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="👤" label="Account" />
+            <TabIcon focused={focused} IconComponent={User} label="Account" />
           ),
         }}
       />
@@ -91,15 +97,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: 68,
-  },
-  tabEmoji: {
-    fontSize: 20,
-    marginBottom: 2,
-    opacity: 0.7,
-  },
-  tabEmojiFocused: {
-    opacity: 1,
-    transform: [{ scale: 1.1 }],
+    gap: 3,
   },
   tabLabel: {
     fontSize: 11,

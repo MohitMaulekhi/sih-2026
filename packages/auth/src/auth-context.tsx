@@ -7,8 +7,8 @@ import React, {
   useCallback,
 } from 'react';
 import { UserProfile, UserRole } from '@repo/types';
-import { dbStore, DEMO_PROFILES } from '@repo/db';
 import { supabase } from './supabase';
+import type { Session, User } from '@supabase/supabase-js';
 
 export interface SignUpData {
   fullName: string;
@@ -24,6 +24,8 @@ export interface SignUpData {
 
 export interface AuthContextType {
   user: UserProfile | null;
+  supabaseUser: User | null;
+  session: Session | null;
   isLoading: boolean;
   expectedRole: UserRole;
   roleMismatch: boolean;
@@ -32,7 +34,6 @@ export interface AuthContextType {
   signIn: (email: string, password?: string) => Promise<{ error?: string }>;
   signUp: (data: SignUpData) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
-  loginAsDemo: (role?: UserRole) => void;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
 }
 
@@ -47,56 +48,159 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   children,
   expectedRole,
 }) => {
-  // Default to demo profile matching the expected app role for immediate fluid usage
-  const initialProfile =
-    DEMO_PROFILES.find((p) => p.role === expectedRole) ??
-    DEMO_PROFILES[0] ??
-    null;
-
-  const [user, setUser] = useState<UserProfile | null>(initialProfile);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [supabaseUser, setSupabaseUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [roleMismatch, setRoleMismatch] = useState<boolean>(false);
   const [roleMismatchMessage, setRoleMismatchMessage] = useState<string | null>(
     null
   );
 
-  // Validate user role whenever user or expectedRole changes
-  const checkRoleGuard = useCallback(
-    (profile: UserProfile | null): boolean => {
-      if (!profile) {
-        setRoleMismatch(false);
-        setRoleMismatchMessage(null);
-        return true;
+  // Fetch real profile from public.profiles table in Supabase
+  const fetchUserProfile = useCallback(
+    async (userId: string, authUser?: User): Promise<UserProfile | null> => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        if (error || !data) {
+          // If profile table doesn't have the record yet (e.g. trigger delayed), construct from auth metadata
+          const meta = authUser?.user_metadata || {};
+          const fallbackProfile: UserProfile = {
+            id: userId,
+            role: (meta.role as UserRole) || expectedRole,
+            fullName: meta.full_name || authUser?.email?.split('@')[0] || 'User',
+            email: authUser?.email || '',
+            phone: meta.phone || null,
+            city: meta.city || 'Bengaluru',
+            address: meta.address || null,
+            bio: meta.bio || null,
+            avatarUrl: meta.avatar_url || null,
+            rating: meta.rating ? Number(meta.rating) : 5.0,
+            experienceYears: meta.experience_years ? Number(meta.experience_years) : 1,
+            isVerified: true,
+            isOnline: true,
+            createdAt: authUser?.created_at || new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          return fallbackProfile;
+        }
+
+        return {
+          id: data.id,
+          role: data.role as UserRole,
+          fullName: data.full_name || 'User',
+          email: data.email,
+          phone: data.phone,
+          avatarUrl: data.avatar_url,
+          bio: data.bio,
+          city: data.city || 'Bengaluru',
+          address: data.address,
+          rating: data.rating ? Number(data.rating) : 5.0,
+          experienceYears: data.experience_years,
+          isVerified: data.is_verified,
+          isOnline: data.is_online,
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
+        };
+      } catch (err) {
+        console.error('Error fetching profile from Supabase:', err);
+        return null;
       }
-
-      if (profile.role !== expectedRole) {
-        setRoleMismatch(true);
-        const correctPortal =
-          profile.role === 'professional' ? 'Partner / Pro Portal' : 'Customer Portal';
-        const currentPortal =
-          expectedRole === 'professional' ? 'Professional Partner' : 'Customer';
-
-        setRoleMismatchMessage(
-          `Access Denied: You are logged in as a ${profile.role.toUpperCase()}. This app is for ${currentPortal}s only. Please use the ${correctPortal}.`
-        );
-        return false;
-      }
-
-      setRoleMismatch(false);
-      setRoleMismatchMessage(null);
-      return true;
     },
     [expectedRole]
   );
 
+  // Handle and enforce strict role isolation
+  const handleSessionChange = useCallback(
+    async (currentSession: Session | null) => {
+      setIsLoading(true);
+      if (!currentSession?.user) {
+        setUser(null);
+        setSupabaseUser(null);
+        setSession(null);
+        setRoleMismatch(false);
+        setRoleMismatchMessage(null);
+        setIsLoading(false);
+        return;
+      }
+
+      setSession(currentSession);
+      setSupabaseUser(currentSession.user);
+
+      const profile = await fetchUserProfile(
+        currentSession.user.id,
+        currentSession.user
+      );
+
+      if (profile) {
+        if (profile.role !== expectedRole) {
+          // Role mismatch detected
+          setRoleMismatch(true);
+          const targetPortal =
+            profile.role === 'professional' ? 'Professional Partner Portal' : 'Customer Portal';
+          const currentPortalName =
+            expectedRole === 'professional' ? 'Partner' : 'Customer';
+
+          setRoleMismatchMessage(
+            `Access Restricted: Your account is registered as a ${profile.role.toUpperCase()}. This application is strictly for ${currentPortalName}s. Please use the ${targetPortal}.`
+          );
+          setUser(profile);
+        } else {
+          setRoleMismatch(false);
+          setRoleMismatchMessage(null);
+          setUser(profile);
+        }
+      }
+
+      setIsLoading(false);
+    },
+    [expectedRole, fetchUserProfile]
+  );
+
+  // Initialize session and subscribe to Supabase Auth State changes
   useEffect(() => {
-    checkRoleGuard(user);
-  }, [user, checkRoleGuard]);
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (mounted) {
+          await handleSessionChange(data.session);
+        }
+      } catch (err) {
+        console.error('Supabase getSession error:', err);
+        if (mounted) setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      if (mounted) {
+        await handleSessionChange(newSession);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [handleSessionChange]);
 
   const clearRoleMismatch = () => {
     setRoleMismatch(false);
     setRoleMismatchMessage(null);
     setUser(null);
+    setSupabaseUser(null);
+    setSession(null);
+    supabase.auth.signOut().catch(() => {});
   };
 
   const signIn = async (
@@ -105,92 +209,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   ): Promise<{ error?: string }> => {
     setIsLoading(true);
     try {
-      // 1. First check in-memory store demo profiles
-      const profile = dbStore
-        .getServices() // touch db
-        ? DEMO_PROFILES.find(
-            (p) => p.email.toLowerCase() === email.toLowerCase()
-          )
-        : null;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password || '',
+      });
 
-      if (profile) {
-        const isAllowed = checkRoleGuard(profile);
-        setUser(profile);
+      if (error) {
         setIsLoading(false);
-        if (!isAllowed) {
-          return { error: 'Role mismatch detected.' };
-        }
-        return {};
+        return { error: error.message };
       }
 
-      // 2. Try Supabase Auth
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password: password || 'password123',
-        });
-
-        if (error) {
-          // If supabase fails or not configured, create temporary session profile
-          const tempProfile: UserProfile = {
-            id: `usr-${Date.now()}`,
-            role: expectedRole,
-            fullName: email.split('@')[0] || 'User',
-            email,
-            city: 'Bengaluru',
-            rating: 5.0,
-            isVerified: true,
-            isOnline: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          };
-          dbStore.saveProfile(tempProfile);
-          setUser(tempProfile);
-          checkRoleGuard(tempProfile);
+      if (data.user) {
+        const profile = await fetchUserProfile(data.user.id, data.user);
+        if (profile && profile.role !== expectedRole) {
+          setRoleMismatch(true);
+          setRoleMismatchMessage(
+            `Access Restricted: You are signed in as a ${profile.role.toUpperCase()}. This app is for ${expectedRole.toUpperCase()}s only.`
+          );
+          setUser(profile);
           setIsLoading(false);
-          return {};
+          return { error: `Role mismatch: User is a ${profile.role}` };
         }
 
-        if (data.user) {
-          const profileFromDb = dbStore.getProfileById(data.user.id);
-          const loadedProfile: UserProfile = profileFromDb || {
-            id: data.user.id,
-            role: (data.user.user_metadata?.role as UserRole) || expectedRole,
-            fullName: data.user.user_metadata?.full_name || 'User',
-            email: data.user.email || email,
-            phone: data.user.user_metadata?.phone,
-            city: data.user.user_metadata?.city || 'Bengaluru',
-            avatarUrl: data.user.user_metadata?.avatar_url,
-            createdAt: data.user.created_at,
-            updatedAt: new Date().toISOString(),
-          };
-
-          dbStore.saveProfile(loadedProfile);
-          setUser(loadedProfile);
-          const isAllowed = checkRoleGuard(loadedProfile);
-          setIsLoading(false);
-          if (!isAllowed) {
-            return { error: 'Role mismatch detected.' };
-          }
-          return {};
-        }
-      } catch {
-        // Fallback for offline demo
-        const fallbackProfile: UserProfile = {
-          id: `usr-${Date.now()}`,
-          role: expectedRole,
-          fullName: email.split('@')[0] || 'User',
-          email,
-          city: 'Bengaluru',
-          rating: 5.0,
-          isVerified: true,
-          isOnline: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        dbStore.saveProfile(fallbackProfile);
-        setUser(fallbackProfile);
-        checkRoleGuard(fallbackProfile);
+        setUser(profile);
+        setSupabaseUser(data.user);
+        setSession(data.session);
+        setRoleMismatch(false);
+        setRoleMismatchMessage(null);
       }
 
       setIsLoading(false);
@@ -204,42 +249,69 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const signUp = async (data: SignUpData): Promise<{ error?: string }> => {
     setIsLoading(true);
     try {
-      const newProfile: UserProfile = {
-        id: `usr-${Date.now()}`,
-        role: data.role,
-        fullName: data.fullName,
-        email: data.email,
-        phone: data.phone,
-        city: data.city || 'Bengaluru',
-        address: data.address,
-        bio: data.bio,
-        experienceYears: data.experienceYears,
-        rating: 5.0,
-        isVerified: true,
-        isOnline: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      dbStore.saveProfile(newProfile);
-      setUser(newProfile);
-      checkRoleGuard(newProfile);
-
-      // Attempt Supabase signup in background
-      supabase.auth
-        .signUp({
-          email: data.email,
-          password: data.password || 'password123',
-          options: {
-            data: {
-              full_name: data.fullName,
-              role: data.role,
-              phone: data.phone,
-              city: data.city,
-            },
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email.trim(),
+        password: data.password || 'password123',
+        options: {
+          data: {
+            full_name: data.fullName.trim(),
+            role: data.role,
+            phone: data.phone?.trim(),
+            city: data.city || 'Bengaluru',
+            address: data.address,
+            bio: data.bio,
+            experience_years: data.experienceYears,
           },
-        })
-        .catch(() => {});
+        },
+      });
+
+      if (authError) {
+        setIsLoading(false);
+        return { error: authError.message };
+      }
+
+      if (authData.user) {
+        // Ensure profile row exists in public.profiles
+        const profileRow = {
+          id: authData.user.id,
+          role: data.role,
+          full_name: data.fullName.trim(),
+          email: data.email.trim(),
+          phone: data.phone?.trim() || null,
+          city: data.city || 'Bengaluru',
+          address: data.address || null,
+          bio: data.bio || null,
+          experience_years: data.experienceYears || 1,
+          is_verified: true,
+          is_online: true,
+          updated_at: new Date().toISOString(),
+        };
+
+        Promise.resolve(
+          supabase.from('profiles').upsert(profileRow)
+        ).catch(() => {});
+
+        const newProfile: UserProfile = {
+          id: authData.user.id,
+          role: data.role,
+          fullName: data.fullName.trim(),
+          email: data.email.trim(),
+          phone: data.phone?.trim() || null,
+          city: data.city || 'Bengaluru',
+          address: data.address || null,
+          bio: data.bio || null,
+          experienceYears: data.experienceYears || 1,
+          rating: 5.0,
+          isVerified: true,
+          isOnline: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        setUser(newProfile);
+        setSupabaseUser(authData.user);
+        setSession(authData.session);
+      }
 
       setIsLoading(false);
       return {};
@@ -252,40 +324,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const signOut = async () => {
     setIsLoading(true);
     try {
-      await supabase.auth.signOut().catch(() => {});
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error('Sign out error:', err);
     } finally {
       setUser(null);
+      setSupabaseUser(null);
+      setSession(null);
       setRoleMismatch(false);
       setRoleMismatchMessage(null);
       setIsLoading(false);
     }
   };
 
-  const loginAsDemo = (roleOverride?: UserRole) => {
-    const targetRole = roleOverride || expectedRole;
-    const demo =
-      DEMO_PROFILES.find((p) => p.role === targetRole) ??
-      DEMO_PROFILES[0] ??
-      null;
-    setUser(demo);
-    checkRoleGuard(demo);
-  };
-
   const updateProfile = async (data: Partial<UserProfile>) => {
     if (!user) return;
-    const updated: UserProfile = {
-      ...user,
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    dbStore.saveProfile(updated);
-    setUser(updated);
+
+    try {
+      const dbPayload: Record<string, any> = {
+        updated_at: new Date().toISOString(),
+      };
+      if (data.fullName !== undefined) dbPayload.full_name = data.fullName;
+      if (data.phone !== undefined) dbPayload.phone = data.phone;
+      if (data.city !== undefined) dbPayload.city = data.city;
+      if (data.address !== undefined) dbPayload.address = data.address;
+      if (data.bio !== undefined) dbPayload.bio = data.bio;
+      if (data.avatarUrl !== undefined) dbPayload.avatar_url = data.avatarUrl;
+      if (data.isOnline !== undefined) dbPayload.is_online = data.isOnline;
+
+      await supabase.from('profiles').update(dbPayload).eq('id', user.id);
+
+      setUser((prev) => (prev ? { ...prev, ...data } : null));
+    } catch (err) {
+      console.error('Update profile error:', err);
+    }
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        supabaseUser,
+        session,
         isLoading,
         expectedRole,
         roleMismatch,
@@ -294,7 +374,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         signIn,
         signUp,
         signOut,
-        loginAsDemo,
         updateProfile,
       }}>
       {children}

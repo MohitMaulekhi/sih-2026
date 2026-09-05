@@ -141,8 +141,8 @@ const styles = StyleSheet.create({
     minWidth: 78,
   },
   dateCardSelected: {
-    backgroundColor: '#7C3AED',
-    borderColor: '#7C3AED',
+    backgroundColor: '#EA580C',
+    borderColor: '#EA580C',
   },
   dayLabel: {
     fontSize: 12,
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   dayLabelSelected: {
-    color: '#EDE9FE',
+    color: '#FFEDD5',
   },
   dateLabel: {
     fontSize: 14,
@@ -175,8 +175,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   slotChipSelected: {
-    backgroundColor: '#EDE9FE',
-    borderColor: '#7C3AED',
+    backgroundColor: '#FFEDD5',
+    borderColor: '#EA580C',
   },
   slotChipText: {
     fontSize: 12,
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     color: '#475569',
   },
   slotChipTextSelected: {
-    color: '#7C3AED',
+    color: '#EA580C',
     fontWeight: '800',
   },
 });

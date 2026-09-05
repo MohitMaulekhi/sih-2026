@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface SectionHeaderProps {
@@ -6,6 +6,7 @@ interface SectionHeaderProps {
   subtitle?: string;
   actionText?: string;
   onActionPress?: () => void;
+  icon?: ReactNode;
   emoji?: string;
 }
 
@@ -14,13 +15,13 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   subtitle,
   actionText,
   onActionPress,
-  emoji,
+  icon,
 }) => {
   return (
     <View style={styles.container}>
       <View style={styles.textColumn}>
         <View style={styles.titleRow}>
-          {emoji && <Text style={styles.emoji}>{emoji}</Text>}
+          {icon && <View style={styles.iconContainer}>{icon}</View>}
           <Text style={styles.title}>{title}</Text>
         </View>
         {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
@@ -53,10 +54,11 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
-  emoji: {
-    fontSize: 18,
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 18,
@@ -72,6 +74,6 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#7C3AED',
+    color: '#EA580C',
   },
 });

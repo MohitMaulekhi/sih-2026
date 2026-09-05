@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Inbox, PackageOpen, ClipboardList, Search, LucideIcon } from 'lucide-react-native';
 
 interface EmptyStateProps {
-  icon?: string;
+  icon?: 'inbox' | 'package' | 'clipboard' | 'search' | string;
   title: string;
   description: string;
   actionText?: string;
@@ -10,17 +11,28 @@ interface EmptyStateProps {
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
-  icon = '📦',
+  icon = 'inbox',
   title,
   description,
   actionText,
   onAction,
 }) => {
+  const renderIcon = () => {
+    switch (icon) {
+      case 'search':
+        return <Search size={28} color="#EA580C" />;
+      case 'clipboard':
+        return <ClipboardList size={28} color="#EA580C" />;
+      case 'package':
+        return <PackageOpen size={28} color="#EA580C" />;
+      default:
+        return <Inbox size={28} color="#EA580C" />;
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.iconCircle}>
-        <Text style={styles.icon}>{icon}</Text>
-      </View>
+      <View style={styles.iconCircle}>{renderIcon()}</View>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
       {actionText && onAction && (
@@ -45,13 +57,10 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#FFEDD5',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
-  },
-  icon: {
-    fontSize: 28,
   },
   title: {
     fontSize: 18,
@@ -69,7 +78,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     marginTop: 20,
-    backgroundColor: '#7C3AED',
+    backgroundColor: '#EA580C',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,

@@ -4,11 +4,12 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   Platform,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserRole } from '@repo/types';
+import { Zap, Sparkles, ShieldCheck } from 'lucide-react-native';
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -18,7 +19,6 @@ interface AuthLayoutProps {
   footerPrompt?: string;
   footerActionText?: string;
   onFooterActionPress?: () => void;
-  onDemoLogin?: () => void;
 }
 
 export const AuthLayout: React.FC<AuthLayoutProps> = ({
@@ -29,7 +29,6 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
   footerPrompt,
   footerActionText,
   onFooterActionPress,
-  onDemoLogin,
 }) => {
   const isPro = role === 'professional';
 
@@ -43,18 +42,22 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           {/* Brand Header */}
           <View style={styles.header}>
             <View style={[styles.badge, isPro ? styles.badgePro : styles.badgeCust]}>
-              <Text style={styles.badgeEmoji}>{isPro ? '⚡' : '✨'}</Text>
+              {isPro ? (
+                <Zap size={14} color="#6EE7B7" style={{ marginRight: 6 }} />
+              ) : (
+                <Sparkles size={14} color="#FDBA74" style={{ marginRight: 6 }} />
+              )}
               <Text
                 style={[
                   styles.badgeText,
                   isPro ? styles.badgeTextPro : styles.badgeTextCust,
                 ]}>
-                {isPro ? 'URBAN PARTNER' : 'URBAN SERVICES'}
+                {isPro ? 'RURALCLAP PARTNER' : 'RURALCLAP SERVICES'}
               </Text>
             </View>
 
             <Text style={styles.brandTitle}>
-              Urban<Text style={isPro ? styles.brandHighlightPro : styles.brandHighlight}>Company</Text>
+              Rural<Text style={isPro ? styles.brandHighlightPro : styles.brandHighlight}>Clap</Text>
             </Text>
             <Text style={styles.title}>{title}</Text>
             <Text style={styles.subtitle}>{subtitle}</Text>
@@ -62,23 +65,6 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
 
           {/* Card Form */}
           <View style={styles.card}>{children}</View>
-
-          {/* Quick Demo Credentials Button */}
-          {onDemoLogin && (
-            <View style={styles.demoSection}>
-              <TouchableOpacity
-                style={styles.demoButton}
-                activeOpacity={0.8}
-                onPress={onDemoLogin}>
-                <Text style={styles.demoButtonText}>
-                  🚀 1-Click Demo Login as {isPro ? 'Verified Professional' : 'Customer'}
-                </Text>
-              </TouchableOpacity>
-              <Text style={styles.demoHint}>
-                Instant test account loaded with sample data
-              </Text>
-            </View>
-          )}
 
           {/* Footer toggle */}
           {footerPrompt && footerActionText && onFooterActionPress && (
@@ -125,23 +111,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderRadius: 20,
     marginBottom: 12,
   },
   badgeCust: {
-    backgroundColor: 'rgba(124, 58, 237, 0.15)',
+    backgroundColor: 'rgba(234, 88, 12, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(167, 139, 250, 0.3)',
+    borderColor: 'rgba(251, 146, 60, 0.3)',
   },
   badgePro: {
     backgroundColor: 'rgba(16, 185, 129, 0.15)',
     borderWidth: 1,
     borderColor: 'rgba(52, 211, 153, 0.3)',
-  },
-  badgeEmoji: {
-    fontSize: 12,
-    marginRight: 6,
   },
   badgeText: {
     fontSize: 11,
@@ -149,7 +131,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   badgeTextCust: {
-    color: '#C4B5FD',
+    color: '#FDBA74',
   },
   badgeTextPro: {
     color: '#6EE7B7',
@@ -162,7 +144,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   brandHighlight: {
-    color: '#8B5CF6',
+    color: '#F97316',
   },
   brandHighlightPro: {
     color: '#10B981',
@@ -202,30 +184,6 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  demoSection: {
-    marginTop: 18,
-    alignItems: 'center',
-  },
-  demoButton: {
-    backgroundColor: '#334155',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#475569',
-    width: '100%',
-    alignItems: 'center',
-  },
-  demoButtonText: {
-    color: '#F1F5F9',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  demoHint: {
-    color: '#64748B',
-    fontSize: 11,
-    marginTop: 6,
-  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -241,7 +199,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   footerActionCust: {
-    color: '#A78BFA',
+    color: '#FB923C',
   },
   footerActionPro: {
     color: '#34D399',

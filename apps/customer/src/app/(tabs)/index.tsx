@@ -4,13 +4,12 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TextInput,
   TouchableOpacity,
   Image,
-  Dimensions,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbStore } from '@repo/db';
 import { Service, ServiceCategory } from '@repo/types';
@@ -22,6 +21,20 @@ import {
   IconHelper,
 } from '@repo/ui';
 import { formatDuration } from '@repo/utils';
+import {
+  MapPin,
+  ChevronDown,
+  Search,
+  X,
+  Zap,
+  ArrowRight,
+  Clock,
+  ShieldCheck,
+  Award,
+  Sparkles,
+  Flame,
+  CheckCircle2,
+} from 'lucide-react-native';
 
 export default function CustomerHomeScreen() {
   const router = useRouter();
@@ -33,7 +46,6 @@ export default function CustomerHomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Load and subscribe to store changes
   useEffect(() => {
     const loadData = () => {
       setCategories(dbStore.getCategories());
@@ -72,21 +84,21 @@ export default function CustomerHomeScreen() {
             <TouchableOpacity
               style={styles.locationRow}
               activeOpacity={0.7}
-              onPress={() => router.push('/(tabs)/profile')}>
-              <Text style={styles.locationPin}>📍</Text>
+              onPress={() => router.push('/(tabs)/profile' as any)}>
+              <MapPin size={14} color="#EA580C" style={{ marginRight: 4 }} />
               <Text style={styles.locationCity}>
                 {user?.city || 'Bengaluru'}
               </Text>
               <Text style={styles.locationAddress} numberOfLines={1}>
                 • {user?.address ? 'Home' : 'Indiranagar 100ft Rd'}
               </Text>
-              <Text style={styles.dropdownIcon}>▾</Text>
+              <ChevronDown size={14} color="#64748B" style={{ marginLeft: 2 }} />
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity
             style={styles.avatarButton}
-            onPress={() => router.push('/(tabs)/profile')}
+            onPress={() => router.push('/(tabs)/profile' as any)}
             activeOpacity={0.8}>
             {user?.avatarUrl ? (
               <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
@@ -102,7 +114,7 @@ export default function CustomerHomeScreen() {
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <Search size={16} color="#64748B" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search 'AC service', 'cleaning', 'plumber'..."
@@ -112,7 +124,7 @@ export default function CustomerHomeScreen() {
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Text style={styles.clearSearch}>✕</Text>
+              <X size={16} color="#94A3B8" style={styles.clearSearch} />
             </TouchableOpacity>
           )}
         </View>
@@ -120,18 +132,16 @@ export default function CustomerHomeScreen() {
         {/* Promotional Hero Banner */}
         <View style={styles.heroBanner}>
           <View style={styles.heroContent}>
-            <View style={styles.heroBadge}>
-              <Text style={styles.heroBadgeText}>⚡ MONSOON SPECIALS</Text>
-            </View>
-            <Text style={styles.heroHeading}>AC & Home Deep Cleaning</Text>
+            <Text style={styles.heroHeading}>Doorstep Home Services</Text>
             <Text style={styles.heroSubtitle}>
               Up to 30% OFF • 100% Certified Technicians
             </Text>
             <TouchableOpacity
               style={styles.heroCta}
               activeOpacity={0.8}
-              onPress={() => setSelectedCategory('cat-ac-repair')}>
-              <Text style={styles.heroCtaText}>Explore Offers ➔</Text>
+              onPress={() => setSelectedCategory('a0000000-0000-0000-0000-000000000001')}>
+              <Text style={styles.heroCtaText}>Explore Offers</Text>
+              <ArrowRight size={14} color="#FFFFFF" style={{ marginLeft: 4 }} />
             </TouchableOpacity>
           </View>
           <Image
@@ -144,9 +154,9 @@ export default function CustomerHomeScreen() {
 
         {/* Category Icons Grid */}
         <SectionHeader
-          emoji="✨"
+          icon={<Sparkles size={18} color="#EA580C" />}
           title="Categories"
-          subtitle="Explore all verified home services"
+          subtitle="Explore verified doorstep home services"
           actionText={selectedCategory ? 'Clear Filter' : undefined}
           onActionPress={() => setSelectedCategory(null)}
         />
@@ -170,7 +180,11 @@ export default function CustomerHomeScreen() {
                     styles.categoryIconCircle,
                     isSelected && styles.categoryIconCircleSelected,
                   ]}>
-                  <IconHelper name={cat.icon} size={24} />
+                  <IconHelper
+                    name={cat.icon}
+                    size={22}
+                    color={isSelected ? '#FFFFFF' : '#EA580C'}
+                  />
                 </View>
                 <Text
                   style={[
@@ -189,11 +203,11 @@ export default function CustomerHomeScreen() {
         {!selectedCategory && searchQuery.length === 0 && (
           <>
             <SectionHeader
-              emoji="🔥"
+              icon={<Flame size={18} color="#EA580C" />}
               title="Most Booked Services"
               subtitle="Trusted by 50,000+ households"
               actionText="View All"
-              onActionPress={() => router.push('/(tabs)/explore')}
+              onActionPress={() => router.push('/(tabs)/explore' as any)}
             />
 
             <ScrollView
@@ -205,7 +219,7 @@ export default function CustomerHomeScreen() {
                   key={service.id}
                   style={styles.popularCard}
                   activeOpacity={0.85}
-                  onPress={() => router.push(`/service/${service.id}`)}>
+                  onPress={() => router.push(`/service/${service.id}` as any)}>
                   <Image
                     source={{ uri: service.imageUrl }}
                     style={styles.popularCardImage}
@@ -217,9 +231,12 @@ export default function CustomerHomeScreen() {
                         reviewsCount={service.reviewsCount}
                         size="small"
                       />
-                      <Text style={styles.durationBadge}>
-                        ⏱️ {formatDuration(service.durationMinutes)}
-                      </Text>
+                      <View style={styles.durationRow}>
+                        <Clock size={11} color="#64748B" style={{ marginRight: 3 }} />
+                        <Text style={styles.durationBadge}>
+                          {formatDuration(service.durationMinutes)}
+                        </Text>
+                      </View>
                     </View>
 
                     <Text style={styles.popularCardTitle} numberOfLines={2}>
@@ -234,7 +251,7 @@ export default function CustomerHomeScreen() {
                       />
                       <TouchableOpacity
                         style={styles.bookMiniBtn}
-                        onPress={() => router.push(`/book/${service.id}`)}>
+                        onPress={() => router.push(`/book/${service.id}` as any)}>
                         <Text style={styles.bookMiniBtnText}>Book</Text>
                       </TouchableOpacity>
                     </View>
@@ -247,7 +264,7 @@ export default function CustomerHomeScreen() {
 
         {/* All Services / Filtered Services Grid */}
         <SectionHeader
-          emoji="🛠️"
+          icon={<Award size={18} color="#EA580C" />}
           title={
             selectedCategory
               ? `${categories.find((c) => c.id === selectedCategory)?.name || 'Filtered'} Services`
@@ -264,7 +281,7 @@ export default function CustomerHomeScreen() {
               key={service.id}
               style={styles.serviceItemCard}
               activeOpacity={0.85}
-              onPress={() => router.push(`/service/${service.id}`)}>
+              onPress={() => router.push(`/service/${service.id}` as any)}>
               <Image
                 source={{ uri: service.imageUrl }}
                 style={styles.serviceItemImage}
@@ -283,22 +300,26 @@ export default function CustomerHomeScreen() {
                   )}
                 </View>
 
-                <Text style={styles.serviceItemTitle}>{service.title}</Text>
+                <Text style={styles.serviceItemTitle} numberOfLines={2}>
+                  {service.title}
+                </Text>
                 <Text style={styles.serviceItemDesc} numberOfLines={2}>
                   {service.shortDescription}
                 </Text>
 
                 <View style={styles.serviceItemBottom}>
-                  <PriceTag
-                    price={service.discountedPrice ?? service.basePrice}
-                    originalPrice={service.discountedPrice ? service.basePrice : null}
-                    size="medium"
-                  />
+                  <View style={styles.priceContainer}>
+                    <PriceTag
+                      price={service.discountedPrice ?? service.basePrice}
+                      originalPrice={service.discountedPrice ? service.basePrice : null}
+                      size="small"
+                    />
+                  </View>
                   <TouchableOpacity
                     style={styles.bookButton}
                     activeOpacity={0.8}
-                    onPress={() => router.push(`/book/${service.id}`)}>
-                    <Text style={styles.bookButtonText}>Book Now</Text>
+                    onPress={() => router.push(`/book/${service.id}` as any)}>
+                    <Text style={styles.bookButtonText}>Book</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -308,20 +329,20 @@ export default function CustomerHomeScreen() {
 
         {/* Trust Badges Section */}
         <View style={styles.trustSection}>
-          <Text style={styles.trustTitle}>The Urban Company Promise</Text>
+          <Text style={styles.trustTitle}>The RuralClap Promise</Text>
           <View style={styles.trustGrid}>
             <View style={styles.trustItem}>
-              <Text style={styles.trustIcon}>🛡️</Text>
+              <ShieldCheck size={26} color="#EA580C" style={styles.trustIcon} />
               <Text style={styles.trustHeading}>Verified Pros</Text>
               <Text style={styles.trustSub}>Background checked & trained</Text>
             </View>
             <View style={styles.trustItem}>
-              <Text style={styles.trustIcon}>⏱️</Text>
+              <Clock size={26} color="#EA580C" style={styles.trustIcon} />
               <Text style={styles.trustHeading}>On-Time Arrival</Text>
               <Text style={styles.trustSub}>Strict adherence to time slots</Text>
             </View>
             <View style={styles.trustItem}>
-              <Text style={styles.trustIcon}>💯</Text>
+              <CheckCircle2 size={26} color="#EA580C" style={styles.trustIcon} />
               <Text style={styles.trustHeading}>30-Day Cover</Text>
               <Text style={styles.trustSub}>Free rework if not satisfied</Text>
             </View>
@@ -361,10 +382,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 2,
   },
-  locationPin: {
-    fontSize: 14,
-    marginRight: 4,
-  },
   locationCity: {
     fontSize: 15,
     fontWeight: '800',
@@ -376,11 +393,6 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     maxWidth: 160,
   },
-  dropdownIcon: {
-    fontSize: 12,
-    color: '#64748B',
-    marginLeft: 4,
-  },
   avatarButton: {
     marginLeft: 12,
   },
@@ -389,18 +401,18 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     borderWidth: 2,
-    borderColor: '#7C3AED',
+    borderColor: '#EA580C',
   },
   avatarFallback: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#EDE9FE',
+    backgroundColor: '#FFEDD5',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarInitial: {
-    color: '#7C3AED',
+    color: '#EA580C',
     fontWeight: '800',
     fontSize: 16,
   },
@@ -416,7 +428,6 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   searchIcon: {
-    fontSize: 16,
     marginRight: 10,
   },
   searchInput: {
@@ -425,8 +436,6 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   clearSearch: {
-    color: '#94A3B8',
-    fontSize: 16,
     paddingHorizontal: 4,
   },
   heroBanner: {
@@ -447,17 +456,19 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   heroBadge: {
-    backgroundColor: 'rgba(124, 58, 237, 0.25)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(234, 88, 12, 0.25)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
     alignSelf: 'flex-start',
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(167, 139, 250, 0.4)',
+    borderColor: 'rgba(251, 146, 60, 0.4)',
   },
   heroBadgeText: {
-    color: '#C4B5FD',
+    color: '#FED7AA',
     fontSize: 10,
     fontWeight: '800',
   },
@@ -473,9 +484,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   heroCta: {
-    backgroundColor: '#7C3AED',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EA580C',
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: 8,
     alignSelf: 'flex-start',
   },
@@ -492,11 +505,12 @@ const styles = StyleSheet.create({
   categoryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    justifyContent: 'space-between',
+    rowGap: 12,
     marginBottom: 16,
   },
   categoryCard: {
-    width: '22.5%',
+    width: '23%',
     alignItems: 'center',
     paddingVertical: 10,
     backgroundColor: '#F8FAFC',
@@ -505,8 +519,8 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   categoryCardSelected: {
-    backgroundColor: '#EDE9FE',
-    borderColor: '#7C3AED',
+    backgroundColor: '#FFEDD5',
+    borderColor: '#EA580C',
   },
   categoryIconCircle: {
     width: 44,
@@ -528,7 +542,7 @@ const styles = StyleSheet.create({
     }),
   },
   categoryIconCircleSelected: {
-    backgroundColor: '#7C3AED',
+    backgroundColor: '#EA580C',
   },
   categoryName: {
     fontSize: 11,
@@ -538,7 +552,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   categoryNameSelected: {
-    color: '#7C3AED',
+    color: '#EA580C',
     fontWeight: '800',
   },
   popularRow: {
@@ -577,6 +591,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 6,
   },
+  durationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   durationBadge: {
     fontSize: 10,
     color: '#64748B',
@@ -595,7 +613,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bookMiniBtn: {
-    backgroundColor: '#7C3AED',
+    backgroundColor: '#EA580C',
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 8,
@@ -617,6 +635,7 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
     padding: 12,
     gap: 12,
+    alignItems: 'center',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -629,18 +648,20 @@ const styles = StyleSheet.create({
     }),
   },
   serviceItemImage: {
-    width: 95,
-    height: 95,
+    width: 90,
+    height: 90,
     borderRadius: 12,
+    backgroundColor: '#F1F5F9',
   },
   serviceItemBody: {
     flex: 1,
+    minHeight: 90,
     justifyContent: 'space-between',
   },
   serviceItemTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'space-between',
     marginBottom: 4,
   },
   trendingBadge: {
@@ -655,32 +676,37 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   serviceItemTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '800',
     color: '#0F172A',
+    lineHeight: 18,
     marginBottom: 2,
   },
   serviceItemDesc: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#64748B',
-    lineHeight: 16,
-    marginBottom: 8,
+    lineHeight: 15,
+    marginBottom: 6,
   },
   serviceItemBottom: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 2,
+  },
+  priceContainer: {
+    flexShrink: 1,
   },
   bookButton: {
-    backgroundColor: '#7C3AED',
+    backgroundColor: '#EA580C',
     paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
   bookButtonText: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 12,
+    fontWeight: '800',
   },
   trustSection: {
     backgroundColor: '#F8FAFC',
@@ -707,7 +733,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   trustIcon: {
-    fontSize: 24,
     marginBottom: 6,
   },
   trustHeading: {

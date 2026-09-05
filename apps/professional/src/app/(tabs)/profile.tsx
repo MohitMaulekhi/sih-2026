@@ -4,18 +4,34 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@repo/auth';
 import { dbStore } from '@repo/db';
 import { formatCurrency } from '@repo/utils';
+import {
+  ShieldCheck,
+  Wrench,
+  ClipboardList,
+  LogOut,
+  ChevronRight,
+  User,
+  CreditCard,
+  CheckCircle2,
+  Phone,
+  Mail,
+  MapPin,
+  HelpCircle,
+  Award,
+} from 'lucide-react-native';
 
 export default function ProfessionalProfileScreen() {
   const router = useRouter();
-  const { user, signOut, loginAsDemo } = useAuth();
+  const { user, signOut } = useAuth();
 
   const proJobs = dbStore.getBookings({
     userId: user?.id,
@@ -30,14 +46,18 @@ export default function ProfessionalProfileScreen() {
     0
   );
 
-  const handleSignOut = async () => {
-    await signOut();
-    router.replace('/(auth)/login');
-  };
-
-  const handleSwitchToCustomer = () => {
-    // Switch demo account to customer
-    loginAsDemo('customer');
+  const handleSignOut = () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out of RuralClap Partner?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          await signOut();
+          router.replace('/(auth)/login' as any);
+        },
+      },
+    ]);
   };
 
   return (
@@ -45,127 +65,177 @@ export default function ProfessionalProfileScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Partner Profile</Text>
+          <Text style={styles.headerSubtitle}>Verified RuralClap Professional</Text>
+        </View>
+
         {/* Profile Card Header */}
         <View style={styles.profileHeaderCard}>
-          <View style={styles.avatarRow}>
+          <View style={styles.avatarWrapper}>
             {user?.avatarUrl ? (
               <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarFallback}>
-                <Text style={styles.avatarInitial}>
-                  {user?.fullName?.charAt(0) || 'P'}
-                </Text>
+                <User size={32} color="#10B981" />
               </View>
             )}
-
-            <View style={styles.profileInfo}>
-              <View style={styles.nameRow}>
-                <Text style={styles.fullName}>{user?.fullName || 'Partner'}</Text>
-                <View style={styles.verifiedBadge}>
-                  <Text style={styles.verifiedBadgeText}>✓ Top Partner</Text>
-                </View>
-              </View>
-              <Text style={styles.experienceText}>
-                ⚡ {user?.experienceYears || 7}+ Years Experience
-              </Text>
-              <Text style={styles.phoneText}>
-                {user?.phone || '+91 91234 56789'}
-              </Text>
+            <View style={styles.verifiedDot}>
+              <ShieldCheck size={12} color="#FFFFFF" />
             </View>
           </View>
 
-          {/* Quick Stats */}
+          <View style={styles.nameBlock}>
+            <Text style={styles.fullName}>{user?.fullName || 'RuralClap Partner'}</Text>
+            <View style={styles.verifiedChip}>
+              <ShieldCheck size={12} color="#34D399" style={{ marginRight: 4 }} />
+              <Text style={styles.verifiedChipText}>Verified Expert</Text>
+            </View>
+            <Text style={styles.partnerIdText}>
+              ID: #RC-{(user?.id || '8492').slice(-6).toUpperCase()}
+            </Text>
+          </View>
+
+          {/* Quick Metrics */}
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>
-                {formatCurrency(totalEarnings || 4250)}
+                {formatCurrency(totalEarnings)}
               </Text>
-              <Text style={styles.statLabel}>Lifetime Payout</Text>
+              <Text style={styles.statLabel}>Earnings</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>
-                {completedJobs.length || 14}
+                {completedJobs.length}
               </Text>
               <Text style={styles.statLabel}>Jobs Done</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>★ {user?.rating || '4.92'}</Text>
+              <Text style={styles.statNumber}>
+                ★ {user?.rating ? Number(user.rating).toFixed(1) : '5.0'}
+              </Text>
               <Text style={styles.statLabel}>Rating</Text>
             </View>
           </View>
         </View>
 
-        {/* Bio & Skills */}
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Partner Bio & Expertise</Text>
-          <Text style={styles.bioText}>
-            {user?.bio ||
-              'Certified HVAC & Appliance Specialist with 7+ years of experience across top home service platforms. Expert in AC deep servicing, PCB repair and electrical troubleshooting.'}
-          </Text>
-          <View style={styles.serviceCityTag}>
-            <Text style={styles.serviceCityText}>
-              📍 Serving City: {user?.city || 'Bengaluru'}
-            </Text>
-          </View>
-        </View>
+        {/* Experience & Bio */}
+        <View style={styles.groupContainer}>
+          <Text style={styles.groupHeader}>SPECIALIZATION & LOCATION</Text>
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <View style={styles.infoIconBox}>
+                <Award size={16} color="#10B981" />
+              </View>
+              <View style={styles.infoTextBox}>
+                <Text style={styles.infoLabel}>Field Experience</Text>
+                <Text style={styles.infoValue}>
+                  {user?.experienceYears || 5}+ Years Verified Experience
+                </Text>
+              </View>
+            </View>
 
-        {/* Quick Demo Switcher Card */}
-        <View style={styles.portalSwitchCard}>
-          <View style={styles.portalSwitchHeader}>
-            <Text style={styles.portalSwitchIcon}>🛍️</Text>
-            <View>
-              <Text style={styles.portalSwitchTitle}>
-                Switch to Customer Portal
-              </Text>
-              <Text style={styles.portalSwitchSubtitle}>
-                Test role-based isolation & book home services as a customer.
-              </Text>
+            <View style={styles.infoDivider} />
+
+            <View style={styles.infoRow}>
+              <View style={styles.infoIconBox}>
+                <MapPin size={16} color="#10B981" />
+              </View>
+              <View style={styles.infoTextBox}>
+                <Text style={styles.infoLabel}>Service Operating Area</Text>
+                <Text style={styles.infoValue}>{user?.city || 'Bengaluru'}</Text>
+              </View>
+            </View>
+
+            <View style={styles.infoDivider} />
+
+            <View style={styles.infoRow}>
+              <View style={styles.infoIconBox}>
+                <Mail size={16} color="#10B981" />
+              </View>
+              <View style={styles.infoTextBox}>
+                <Text style={styles.infoLabel}>Contact Email & Phone</Text>
+                <Text style={styles.infoValue}>{user?.email || 'partner@ruralclap.in'}</Text>
+                <Text style={styles.infoSubtext}>{user?.phone || '+91 98765 43210'}</Text>
+              </View>
             </View>
           </View>
-
-          <TouchableOpacity
-            style={styles.switchButton}
-            activeOpacity={0.8}
-            onPress={handleSwitchToCustomer}>
-            <Text style={styles.switchButtonText}>
-              Test Role Guard / Switch to Customer Portal
-            </Text>
-          </TouchableOpacity>
         </View>
 
-        {/* Navigation & Logout */}
-        <View style={styles.menuCard}>
-          <TouchableOpacity
-            style={styles.menuItem}
-            activeOpacity={0.7}
-            onPress={() => router.push('/(tabs)/services')}>
-            <Text style={styles.menuIcon}>🛠️</Text>
-            <Text style={styles.menuText}>Manage Offered Services</Text>
-            <Text style={styles.menuChevron}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            activeOpacity={0.7}
-            onPress={() => router.push('/(tabs)/bookings')}>
-            <Text style={styles.menuIcon}>📋</Text>
-            <Text style={styles.menuText}>View All Job History</Text>
-            <Text style={styles.menuChevron}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.menuItem, styles.menuItemLast]}
-            activeOpacity={0.7}
-            onPress={handleSignOut}>
-            <Text style={styles.menuIcon}>🚪</Text>
-            <Text style={[styles.menuText, styles.signOutText]}>
-              Sign Out
-            </Text>
-            <Text style={styles.menuChevron}>›</Text>
-          </TouchableOpacity>
+        {/* Payout Information */}
+        <View style={styles.groupContainer}>
+          <Text style={styles.groupHeader}>PAYMENTS & SETTLEMENTS</Text>
+          <View style={styles.infoCard}>
+            <View style={styles.payoutStatusRow}>
+              <CheckCircle2 size={16} color="#10B981" style={{ marginRight: 8, marginTop: 2 }} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.payoutStatusTitle}>Direct Bank Payouts Active</Text>
+                <Text style={styles.payoutStatusSub}>
+                  All completed jobs are automatically settled to your verified bank account on a weekly basis.
+                </Text>
+              </View>
+            </View>
+          </View>
         </View>
+
+        {/* Actions Menu */}
+        <View style={styles.groupContainer}>
+          <Text style={styles.groupHeader}>MANAGEMENT & TOOLS</Text>
+          <View style={styles.menuCard}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() => router.push('/(tabs)/services' as any)}>
+              <View style={styles.menuIconBox}>
+                <Wrench size={18} color="#10B981" />
+              </View>
+              <Text style={styles.menuText}>Manage Offered Services</Text>
+              <ChevronRight size={18} color="#64748B" />
+            </TouchableOpacity>
+
+            <View style={styles.menuDivider} />
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() => router.push('/(tabs)/bookings' as any)}>
+              <View style={styles.menuIconBox}>
+                <ClipboardList size={18} color="#10B981" />
+              </View>
+              <Text style={styles.menuText}>Job & Payout History</Text>
+              <ChevronRight size={18} color="#64748B" />
+            </TouchableOpacity>
+
+            <View style={styles.menuDivider} />
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() =>
+                Alert.alert('Partner Support', 'Contact RuralClap Partner Desk: 1800-PARTNER / partner@ruralclap.in')
+              }>
+              <View style={styles.menuIconBox}>
+                <HelpCircle size={18} color="#64748B" />
+              </View>
+              <Text style={styles.menuText}>Partner Help & Guidelines</Text>
+              <ChevronRight size={18} color="#64748B" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Sign Out Button */}
+        <TouchableOpacity
+          style={styles.signOutButton}
+          activeOpacity={0.8}
+          onPress={handleSignOut}>
+          <LogOut size={18} color="#F87171" style={{ marginRight: 8 }} />
+          <Text style={styles.signOutText}>Sign Out of Partner Portal</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.versionText}>RuralClap Partner App v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -177,177 +247,202 @@ const styles = StyleSheet.create({
     backgroundColor: '#0F172A',
   },
   scrollContent: {
-    padding: 16,
-    gap: 16,
+    paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 40,
+  },
+  header: {
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#F8FAFC',
+    letterSpacing: -0.5,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: '#94A3B8',
+    marginTop: 2,
   },
   profileHeaderCard: {
     backgroundColor: '#1E293B',
     borderRadius: 20,
     padding: 20,
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#334155',
-  },
-  avatarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
     marginBottom: 20,
   },
+  avatarWrapper: {
+    position: 'relative',
+    marginBottom: 12,
+  },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 2,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 3,
     borderColor: '#10B981',
   },
   avatarFallback: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: 'rgba(16, 185, 129, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#34D399',
   },
-  avatarInitial: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#34D399',
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  nameRow: {
-    flexDirection: 'row',
+  verifiedDot: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#10B981',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 2,
+    borderWidth: 2,
+    borderColor: '#1E293B',
+  },
+  nameBlock: {
+    alignItems: 'center',
+    marginBottom: 16,
   },
   fullName: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '800',
     color: '#F8FAFC',
+    marginBottom: 4,
   },
-  verifiedBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+  verifiedChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginBottom: 4,
   },
-  verifiedBadgeText: {
+  verifiedChipText: {
     color: '#34D399',
-    fontSize: 10,
-    fontWeight: '800',
+    fontSize: 11,
+    fontWeight: '700',
   },
-  experienceText: {
-    fontSize: 12,
-    color: '#CBD5E1',
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  phoneText: {
-    fontSize: 13,
+  partnerIdText: {
+    fontSize: 11,
     color: '#94A3B8',
+    fontWeight: '600',
   },
   statsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    width: '100%',
     backgroundColor: '#0F172A',
     borderRadius: 14,
     paddingVertical: 12,
-    paddingHorizontal: 16,
     borderWidth: 1,
     borderColor: '#334155',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
   statItem: {
     alignItems: 'center',
     flex: 1,
   },
   statNumber: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '900',
     color: '#34D399',
-    marginBottom: 2,
   },
   statLabel: {
     fontSize: 11,
     color: '#94A3B8',
     fontWeight: '600',
+    marginTop: 2,
   },
   statDivider: {
     width: 1,
-    height: '100%',
+    height: 28,
     backgroundColor: '#334155',
   },
-  sectionCard: {
+  groupContainer: {
+    marginBottom: 18,
+  },
+  groupHeader: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.8,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  infoCard: {
     backgroundColor: '#1E293B',
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
     borderColor: '#334155',
   },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#F8FAFC',
-    marginBottom: 8,
-  },
-  bioText: {
-    fontSize: 13,
-    color: '#CBD5E1',
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  serviceCityTag: {
-    backgroundColor: '#0F172A',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-  },
-  serviceCityText: {
-    color: '#94A3B8',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  portalSwitchCard: {
-    backgroundColor: '#7C3AED',
-    borderRadius: 18,
-    padding: 18,
-  },
-  portalSwitchHeader: {
+  infoRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 14,
+    alignItems: 'flex-start',
   },
-  portalSwitchIcon: {
-    fontSize: 24,
+  infoIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    marginTop: 2,
   },
-  portalSwitchTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#FFFFFF',
+  infoTextBox: {
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+    textTransform: 'uppercase',
+  },
+  infoValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#F8FAFC',
+    marginTop: 1,
+  },
+  infoSubtext: {
+    fontSize: 12,
+    color: '#94A3B8',
+    marginTop: 2,
+  },
+  infoDivider: {
+    height: 1,
+    backgroundColor: '#334155',
+    marginVertical: 12,
+  },
+  payoutStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  payoutStatusTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F8FAFC',
     marginBottom: 2,
   },
-  portalSwitchSubtitle: {
+  payoutStatusSub: {
     fontSize: 12,
-    color: '#DDD6FE',
-    lineHeight: 16,
-  },
-  switchButton: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 10,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  switchButtonText: {
-    color: '#7C3AED',
-    fontSize: 13,
-    fontWeight: '800',
+    color: '#94A3B8',
+    lineHeight: 18,
   },
   menuCard: {
     backgroundColor: '#1E293B',
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: '#334155',
     overflow: 'hidden',
@@ -355,29 +450,49 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#334155',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
-  menuItemLast: {
-    borderBottomWidth: 0,
-  },
-  menuIcon: {
-    fontSize: 18,
+  menuIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#0F172A',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 12,
   },
   menuText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#E2E8F0',
+    color: '#F8FAFC',
     flex: 1,
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: '#334155',
+    marginLeft: 56,
+  },
+  signOutButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.25)',
+    borderRadius: 14,
+    paddingVertical: 14,
+    marginTop: 6,
+    marginBottom: 16,
   },
   signOutText: {
     color: '#F87171',
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '800',
   },
-  menuChevron: {
-    fontSize: 18,
+  versionText: {
+    fontSize: 11,
     color: '#64748B',
+    textAlign: 'center',
   },
 });

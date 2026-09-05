@@ -4,18 +4,32 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   Image,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@repo/auth';
 import { dbStore } from '@repo/db';
+import {
+  MapPin,
+  Calendar,
+  Compass,
+  LogOut,
+  ChevronRight,
+  User,
+  ShieldCheck,
+  Phone,
+  Mail,
+  HelpCircle,
+  FileText,
+  Sparkles,
+} from 'lucide-react-native';
 
 export default function CustomerProfileScreen() {
   const router = useRouter();
-  const { user, signOut, loginAsDemo } = useAuth();
+  const { user, signOut } = useAuth();
 
   const userBookings = dbStore.getBookings({
     userId: user?.id,
@@ -29,14 +43,18 @@ export default function CustomerProfileScreen() {
     ['pending', 'accepted', 'in_progress'].includes(b.status)
   ).length;
 
-  const handleSignOut = async () => {
-    await signOut();
-    router.replace('/(auth)/login');
-  };
-
-  const handleSwitchToPro = () => {
-    // Switch demo to professional
-    loginAsDemo('professional');
+  const handleSignOut = () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out of RuralClap?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          await signOut();
+          router.replace('/(auth)/login' as any);
+        },
+      },
+    ]);
   };
 
   return (
@@ -44,125 +62,177 @@ export default function CustomerProfileScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
-        {/* Profile Card Header */}
-        <View style={styles.profileHeaderCard}>
-          <View style={styles.avatarRow}>
+        {/* Page Title */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Account</Text>
+          <Text style={styles.headerSubtitle}>Manage your profile & preferences</Text>
+        </View>
+
+        {/* Profile Card */}
+        <View style={styles.profileCard}>
+          <View style={styles.avatarWrapper}>
             {user?.avatarUrl ? (
               <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarFallback}>
-                <Text style={styles.avatarInitial}>
-                  {user?.fullName?.charAt(0) || 'U'}
-                </Text>
+                <User size={32} color="#EA580C" />
               </View>
             )}
+            <View style={styles.verifiedDot}>
+              <ShieldCheck size={12} color="#FFFFFF" />
+            </View>
+          </View>
 
-            <View style={styles.profileInfo}>
-              <View style={styles.nameRow}>
-                <Text style={styles.fullName}>{user?.fullName || 'User'}</Text>
-                <View style={styles.verifiedBadge}>
-                  <Text style={styles.verifiedBadgeText}>✓ Verified</Text>
-                </View>
+          <View style={styles.nameBlock}>
+            <Text style={styles.userName}>{user?.fullName || 'RuralClap Customer'}</Text>
+            <View style={styles.verifiedChip}>
+              <ShieldCheck size={12} color="#15803D" style={{ marginRight: 4 }} />
+              <Text style={styles.verifiedChipText}>Verified Customer</Text>
+            </View>
+          </View>
+
+          {/* Quick Metrics */}
+          <View style={styles.statsContainer}>
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{userBookings.length}</Text>
+              <Text style={styles.statTitle}>Bookings</Text>
+            </View>
+            <View style={styles.statLine} />
+            <View style={styles.statBox}>
+              <Text style={styles.statValueActive}>{activeCount}</Text>
+              <Text style={styles.statTitle}>Active</Text>
+            </View>
+            <View style={styles.statLine} />
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{completedCount}</Text>
+              <Text style={styles.statTitle}>Completed</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Contact & Location Info */}
+        <View style={styles.groupContainer}>
+          <Text style={styles.groupHeader}>CONTACT & ADDRESS</Text>
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <View style={styles.infoIconBox}>
+                <Mail size={16} color="#EA580C" />
               </View>
-              <Text style={styles.emailText}>{user?.email}</Text>
-              <Text style={styles.phoneText}>
-                {user?.phone || '+91 98765 43210'}
-              </Text>
+              <View style={styles.infoTextBox}>
+                <Text style={styles.infoLabel}>Email</Text>
+                <Text style={styles.infoValue}>{user?.email || 'customer@ruralclap.in'}</Text>
+              </View>
             </View>
-          </View>
 
-          {/* Quick Stats */}
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{userBookings.length}</Text>
-              <Text style={styles.statLabel}>Total Bookings</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{activeCount}</Text>
-              <Text style={styles.statLabel}>Active Services</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{completedCount}</Text>
-              <Text style={styles.statLabel}>Completed</Text>
-            </View>
-          </View>
-        </View>
+            <View style={styles.infoDivider} />
 
-        {/* Saved Address Section */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Default Service Address</Text>
-          </View>
-          <View style={styles.addressBox}>
-            <Text style={styles.addressIcon}>🏠</Text>
-            <View style={styles.addressTextColumn}>
-              <Text style={styles.addressType}>Home</Text>
-              <Text style={styles.addressFull}>
-                {user?.address ||
-                  'Flat 402, Green Glen Heights, Bellandur, Bengaluru - 560103'}
-              </Text>
-              <Text style={styles.addressCity}>City: {user?.city || 'Bengaluru'}</Text>
+            <View style={styles.infoRow}>
+              <View style={styles.infoIconBox}>
+                <Phone size={16} color="#EA580C" />
+              </View>
+              <View style={styles.infoTextBox}>
+                <Text style={styles.infoLabel}>Phone</Text>
+                <Text style={styles.infoValue}>{user?.phone || '+91 98765 43210'}</Text>
+              </View>
+            </View>
+
+            <View style={styles.infoDivider} />
+
+            <View style={styles.infoRow}>
+              <View style={styles.infoIconBox}>
+                <MapPin size={16} color="#EA580C" />
+              </View>
+              <View style={styles.infoTextBox}>
+                <Text style={styles.infoLabel}>Default Delivery Location</Text>
+                <Text style={styles.infoValue}>
+                  {user?.address || 'Flat 402, Green Glen Heights, Bengaluru - 560103'}
+                </Text>
+                <Text style={styles.infoSubtext}>City: {user?.city || 'Bengaluru'}</Text>
+              </View>
             </View>
           </View>
         </View>
 
-        {/* Quick Demo Switcher Card */}
-        <View style={styles.portalSwitchCard}>
-          <View style={styles.portalSwitchHeader}>
-            <Text style={styles.portalSwitchIcon}>⚡</Text>
-            <View>
-              <Text style={styles.portalSwitchTitle}>
-                Are you a Service Professional?
-              </Text>
-              <Text style={styles.portalSwitchSubtitle}>
-                Manage incoming customer bookings, set your rates & earn.
-              </Text>
-            </View>
+        {/* Quick Links Menu */}
+        <View style={styles.groupContainer}>
+          <Text style={styles.groupHeader}>SHORTCUTS & ACTIVITY</Text>
+          <View style={styles.menuCard}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() => router.push('/(tabs)/bookings' as any)}>
+              <View style={styles.menuIconContainer}>
+                <Calendar size={18} color="#EA580C" />
+              </View>
+              <Text style={styles.menuTitle}>My Bookings</Text>
+              {activeCount > 0 && (
+                <View style={styles.countBadge}>
+                  <Text style={styles.countBadgeText}>{activeCount} Active</Text>
+                </View>
+              )}
+              <ChevronRight size={18} color="#94A3B8" />
+            </TouchableOpacity>
+
+            <View style={styles.menuDivider} />
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() => router.push('/(tabs)/explore' as any)}>
+              <View style={styles.menuIconContainer}>
+                <Compass size={18} color="#EA580C" />
+              </View>
+              <Text style={styles.menuTitle}>Explore Doorstep Services</Text>
+              <ChevronRight size={18} color="#94A3B8" />
+            </TouchableOpacity>
           </View>
-
-          <TouchableOpacity
-            style={styles.switchButton}
-            activeOpacity={0.8}
-            onPress={handleSwitchToPro}>
-            <Text style={styles.switchButtonText}>
-              Test Role Guard / Switch to Pro Portal
-            </Text>
-          </TouchableOpacity>
         </View>
 
-        {/* Account Actions */}
-        <View style={styles.menuCard}>
-          <TouchableOpacity
-            style={styles.menuItem}
-            activeOpacity={0.7}
-            onPress={() => router.push('/(tabs)/bookings')}>
-            <Text style={styles.menuIcon}>📅</Text>
-            <Text style={styles.menuText}>Booking History</Text>
-            <Text style={styles.menuChevron}>›</Text>
-          </TouchableOpacity>
+        {/* Support & Legal */}
+        <View style={styles.groupContainer}>
+          <Text style={styles.groupHeader}>ABOUT & SUPPORT</Text>
+          <View style={styles.menuCard}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() =>
+                Alert.alert('RuralClap Support', 'For support, email us at support@ruralclap.in or call 1800-123-RURAL')
+              }>
+              <View style={styles.menuIconContainer}>
+                <HelpCircle size={18} color="#64748B" />
+              </View>
+              <Text style={styles.menuTitle}>Help & Support</Text>
+              <ChevronRight size={18} color="#94A3B8" />
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.menuItem}
-            activeOpacity={0.7}
-            onPress={() => router.push('/(tabs)/explore')}>
-            <Text style={styles.menuIcon}>🔍</Text>
-            <Text style={styles.menuText}>Explore All Services</Text>
-            <Text style={styles.menuChevron}>›</Text>
-          </TouchableOpacity>
+            <View style={styles.menuDivider} />
 
-          <TouchableOpacity
-            style={[styles.menuItem, styles.menuItemLast]}
-            activeOpacity={0.7}
-            onPress={handleSignOut}>
-            <Text style={styles.menuIcon}>🚪</Text>
-            <Text style={[styles.menuText, styles.signOutText]}>
-              Sign Out
-            </Text>
-            <Text style={styles.menuChevron}>›</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() =>
+                Alert.alert('RuralClap Assurance', 'All services come with verified background-checked technicians and 30-day warranty.')
+              }>
+              <View style={styles.menuIconContainer}>
+                <FileText size={18} color="#64748B" />
+              </View>
+              <Text style={styles.menuTitle}>Terms & Service Guarantee</Text>
+              <ChevronRight size={18} color="#94A3B8" />
+            </TouchableOpacity>
+          </View>
         </View>
+
+        {/* Sign Out Button */}
+        <TouchableOpacity
+          style={styles.signOutButton}
+          activeOpacity={0.8}
+          onPress={handleSignOut}>
+          <LogOut size={18} color="#DC2626" style={{ marginRight: 8 }} />
+          <Text style={styles.signOutText}>Sign Out of RuralClap</Text>
+        </TouchableOpacity>
+
+        {/* Version info */}
+        <Text style={styles.versionText}>RuralClap v1.0.0 • Doorstep Home Services</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -174,196 +244,186 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   scrollContent: {
-    padding: 16,
-    gap: 16,
+    paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 40,
   },
-  profileHeaderCard: {
+  header: {
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#0F172A',
+    letterSpacing: -0.5,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  profileCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 20,
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E2E8F0',
-  },
-  avatarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
     marginBottom: 20,
   },
+  avatarWrapper: {
+    position: 'relative',
+    marginBottom: 12,
+  },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 2,
-    borderColor: '#7C3AED',
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 3,
+    borderColor: '#EA580C',
   },
   avatarFallback: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#EDE9FE',
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#FFEDD5',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FDBA74',
   },
-  avatarInitial: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#7C3AED',
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  nameRow: {
-    flexDirection: 'row',
+  verifiedDot: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#16A34A',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 2,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
-  fullName: {
-    fontSize: 18,
+  nameBlock: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  userName: {
+    fontSize: 19,
     fontWeight: '800',
     color: '#0F172A',
+    marginBottom: 4,
   },
-  verifiedBadge: {
-    backgroundColor: '#DCFCE7',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  verifiedBadgeText: {
-    color: '#15803D',
-    fontSize: 10,
-    fontWeight: '800',
-  },
-  emailText: {
-    fontSize: 13,
-    color: '#64748B',
-    marginBottom: 2,
-  },
-  phoneText: {
-    fontSize: 13,
-    color: '#334155',
-    fontWeight: '600',
-  },
-  statsRow: {
+  verifiedChip: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  verifiedChipText: {
+    color: '#15803D',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    width: '100%',
     backgroundColor: '#F8FAFC',
     borderRadius: 14,
     paddingVertical: 12,
-    paddingHorizontal: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
-  statItem: {
+  statBox: {
     alignItems: 'center',
     flex: 1,
   },
-  statNumber: {
-    fontSize: 18,
+  statValue: {
+    fontSize: 17,
     fontWeight: '900',
-    color: '#7C3AED',
-    marginBottom: 2,
+    color: '#0F172A',
   },
-  statLabel: {
+  statValueActive: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: '#EA580C',
+  },
+  statTitle: {
     fontSize: 11,
     color: '#64748B',
     fontWeight: '600',
+    marginTop: 2,
   },
-  statDivider: {
+  statLine: {
     width: 1,
-    height: '100%',
+    height: 28,
     backgroundColor: '#E2E8F0',
   },
-  sectionCard: {
+  groupContainer: {
+    marginBottom: 18,
+  },
+  groupHeader: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#94A3B8',
+    letterSpacing: 0.8,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  infoCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
-  sectionHeader: {
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-  addressBox: {
+  infoRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 12,
-    backgroundColor: '#F8FAFC',
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
-  addressIcon: {
-    fontSize: 20,
+  infoIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#FFEDD5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    marginTop: 2,
   },
-  addressTextColumn: {
+  infoTextBox: {
     flex: 1,
   },
-  addressType: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#1E293B',
-    marginBottom: 2,
-  },
-  addressFull: {
-    fontSize: 13,
-    color: '#475569',
-    lineHeight: 18,
-    marginBottom: 4,
-  },
-  addressCity: {
+  infoLabel: {
     fontSize: 11,
-    color: '#64748B',
-    fontWeight: '600',
-  },
-  portalSwitchCard: {
-    backgroundColor: '#0F172A',
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#1E293B',
-  },
-  portalSwitchHeader: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 14,
-  },
-  portalSwitchIcon: {
-    fontSize: 24,
-  },
-  portalSwitchTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 2,
-  },
-  portalSwitchSubtitle: {
-    fontSize: 12,
-    color: '#94A3B8',
-    lineHeight: 16,
-  },
-  switchButton: {
-    backgroundColor: '#10B981',
-    paddingVertical: 10,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  switchButtonText: {
-    color: '#FFFFFF',
-    fontSize: 13,
     fontWeight: '700',
+    color: '#94A3B8',
+    textTransform: 'uppercase',
+  },
+  infoValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1E293B',
+    marginTop: 1,
+  },
+  infoSubtext: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  infoDivider: {
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginVertical: 12,
   },
   menuCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
     overflow: 'hidden',
@@ -371,29 +431,61 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
-  menuItemLast: {
-    borderBottomWidth: 0,
-  },
-  menuIcon: {
-    fontSize: 18,
+  menuIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#F8FAFC',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 12,
   },
-  menuText: {
+  menuTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#334155',
+    fontWeight: '700',
+    color: '#1E293B',
     flex: 1,
+  },
+  countBadge: {
+    backgroundColor: '#FFEDD5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginRight: 8,
+  },
+  countBadgeText: {
+    color: '#C2410C',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginLeft: 56,
+  },
+  signOutButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
+    borderRadius: 14,
+    paddingVertical: 14,
+    marginTop: 6,
+    marginBottom: 16,
   },
   signOutText: {
     color: '#DC2626',
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '800',
   },
-  menuChevron: {
-    fontSize: 18,
+  versionText: {
+    fontSize: 11,
     color: '#94A3B8',
+    textAlign: 'center',
   },
 });
