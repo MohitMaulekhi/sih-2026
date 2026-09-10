@@ -4,3 +4,10 @@ packages:
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+
+overrides:
+  "@babel/generator": "7.29.8"
+  "@babel/core": "7.29.7"
+  "@babel/template": "7.29.7"
+  "@babel/types": "7.29.8"
+  "@babel/parser": "7.29.8"
