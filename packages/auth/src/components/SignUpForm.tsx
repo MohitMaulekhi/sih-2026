@@ -74,7 +74,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     <View style={styles.container}>
       {errorMessage && (
         <View style={styles.errorBox}>
-          <AlertCircle size={16} color="#F87171" style={{ marginRight: 8 }} />
+          <AlertCircle size={16} color="#DC2626" style={{ marginRight: 8 }} />
           <Text style={styles.errorText}>{errorMessage}</Text>
         </View>
       )}
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   errorText: {
-    color: '#F87171',
+    color: '#DC2626',
     fontSize: 13,
     fontWeight: '500',
     flex: 1,
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   label: {
-    color: '#E2E8F0',
+    color: '#334155',
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 6,
@@ -245,9 +245,9 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
     borderRadius: 12,
     paddingHorizontal: 12,
   },
@@ -257,17 +257,17 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     paddingVertical: 12,
-    color: '#F8FAFC',
+    color: '#0F172A',
     fontSize: 15,
   },
   inputStandalone: {
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    color: '#F8FAFC',
+    color: '#0F172A',
     fontSize: 15,
   },
   textArea: {

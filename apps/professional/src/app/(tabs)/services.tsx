@@ -89,7 +89,7 @@ export default function ProfessionalServicesScreen() {
         {/* Stats banner */}
         <View style={styles.activeBanner}>
           <View style={styles.activeBadge}>
-            <Zap size={12} color="#34D399" style={{ marginRight: 4 }} />
+            <Zap size={12} color="#059669" style={{ marginRight: 4 }} />
             <Text style={styles.activeBadgeText}>
               {activeCount} {t('professional.services.servicesActive')}
             </Text>
@@ -169,8 +169,8 @@ export default function ProfessionalServicesScreen() {
                     onValueChange={(val) =>
                       handleToggleOffering(service, val)
                     }
-                    trackColor={{ false: '#334155', true: '#059669' }}
-                    thumbColor={active ? '#34D399' : '#94A3B8'}
+                    trackColor={{ false: '#E2E8F0', true: '#059669' }}
+                    thumbColor={active ? '#34D399' : '#64748B'}
                   />
                 </View>
 
@@ -221,35 +221,35 @@ export default function ProfessionalServicesScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
   },
   header: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#334155',
+    borderBottomColor: '#E2E8F0',
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#F8FAFC',
+    color: '#0F172A',
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
     marginBottom: 10,
   },
   activeBanner: {
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
     borderRadius: 14,
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
   },
   activeBadge: {
     flexDirection: 'row',
@@ -262,25 +262,25 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   activeBadgeText: {
-    color: '#34D399',
+    color: '#059669',
     fontSize: 12,
     fontWeight: '800',
   },
   activeSub: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
   },
   chipsRow: {
     gap: 8,
     paddingVertical: 6,
   },
   chip: {
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
   },
   chipSelected: {
     backgroundColor: '#10B981',
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   chipTextSelected: {
     color: '#FFFFFF',
@@ -301,11 +301,11 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   serviceCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
     flexDirection: 'row',
     gap: 12,
   },
@@ -333,17 +333,17 @@ const styles = StyleSheet.create({
   categoryLabel: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#34D399',
+    color: '#059669',
     textTransform: 'uppercase',
   },
   serviceTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: '#0F172A',
   },
   serviceDesc: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     lineHeight: 16,
     marginBottom: 8,
   },
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   priceText: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#34D399',
+    color: '#059669',
     marginTop: 2,
   },
   statusPill: {
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   statusPillTextActive: {
-    color: '#34D399',
+    color: '#059669',
   },
   statusPillTextInactive: {
     color: '#64748B',

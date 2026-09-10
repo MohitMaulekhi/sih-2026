@@ -24,14 +24,14 @@ function ProfessionalAppRoot() {
   }, [isLoading, i18nReady]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0F172A' }}>
-      <StatusBar style="light" />
+    <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+      <StatusBar style="dark" />
       <Stack
         screenOptions={{
           headerShown: false,
           presentation: 'card',
           animation: 'fade_from_bottom',
-          contentStyle: { backgroundColor: '#0F172A' },
+          contentStyle: { backgroundColor: '#ffffff' },
         }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

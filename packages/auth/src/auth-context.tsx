@@ -7,6 +7,7 @@ import React, {
   useCallback,
 } from 'react';
 import { UserProfile, UserRole } from '@repo/types';
+import { setDbAuthToken } from '@repo/db/client';
 import { supabase } from './supabase';
 import type { Session, User } from '@supabase/supabase-js';
 
@@ -126,11 +127,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setRoleMismatch(false);
         setRoleMismatchMessage(null);
         setIsLoading(false);
+        setDbAuthToken(null);
         return;
       }
 
       setSession(currentSession);
       setSupabaseUser(currentSession.user);
+      setDbAuthToken(currentSession.access_token);
 
       const profile = await fetchUserProfile(
         currentSession.user.id,

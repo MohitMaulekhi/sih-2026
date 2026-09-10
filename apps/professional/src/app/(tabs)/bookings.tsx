@@ -211,7 +211,7 @@ export default function ProfessionalBookingsScreen() {
 
               {booking.customerNotes && (
                 <View style={styles.notesBox}>
-                  <MessageSquare size={13} color="#FCD34D" style={{ marginRight: 6, marginTop: 1 }} />
+                  <MessageSquare size={13} color="#D97706" style={{ marginRight: 6, marginTop: 1 }} />
                   <Text style={styles.notesText}>
                     "{booking.customerNotes}"
                   </Text>
@@ -268,25 +268,25 @@ export default function ProfessionalBookingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
   },
   header: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#334155',
+    borderBottomColor: '#E2E8F0',
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#F8FAFC',
+    color: '#0F172A',
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
     marginBottom: 12,
   },
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: 'transparent',
     borderBottomWidth: 1,
-    borderBottomColor: '#334155',
+    borderBottomColor: '#E2E8F0',
     gap: 4,
     marginTop: 4,
   },
@@ -312,10 +312,10 @@ const styles = StyleSheet.create({
   tabBtnText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   tabBtnTextActive: {
-    color: '#34D399',
+    color: '#059669',
     fontWeight: '800',
   },
   listContainer: {
@@ -324,16 +324,16 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   emptyContainer: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
   },
   card: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -342,17 +342,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#334155',
+    borderBottomColor: '#E2E8F0',
   },
   bookingNum: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#60A5FA',
+    color: '#2563EB',
   },
   serviceName: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: '#0F172A',
     marginTop: 2,
   },
   infoRow: {
@@ -362,25 +362,25 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     width: 80,
     fontWeight: '600',
   },
   infoValue: {
     fontSize: 12,
-    color: '#E2E8F0',
+    color: '#334155',
     flex: 1,
     fontWeight: '500',
   },
   phoneHighlight: {
     fontSize: 13,
-    color: '#34D399',
+    color: '#059669',
     fontWeight: '700',
   },
   notesBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
     padding: 10,
     borderRadius: 10,
     marginTop: 6,
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
   },
   notesText: {
     fontSize: 12,
-    color: '#FCD34D',
+    color: '#D97706',
     fontStyle: 'italic',
     flex: 1,
   },
@@ -399,18 +399,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#334155',
+    borderTopColor: '#E2E8F0',
   },
   payoutLabel: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#64748B',
     fontWeight: '700',
     textTransform: 'uppercase',
   },
   payoutAmount: {
     fontSize: 17,
     fontWeight: '900',
-    color: '#34D399',
+    color: '#059669',
   },
   actionBtnGreen: {
     flexDirection: 'row',

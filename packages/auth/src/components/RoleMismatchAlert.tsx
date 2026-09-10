@@ -40,7 +40,7 @@ export const RoleMismatchAlert: React.FC<RoleMismatchAlertProps> = ({
       <View style={styles.overlay}>
         <View style={styles.modalCard}>
           <View style={styles.iconContainer}>
-            <ShieldAlert size={32} color="#F87171" />
+            <ShieldAlert size={32} color="#DC2626" />
           </View>
 
           <Text style={styles.title}>Role Isolation Guard</Text>
@@ -100,26 +100,26 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   modalCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 24,
     padding: 28,
     width: '100%',
     maxWidth: 420,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: '#0F172A',
         shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.15,
         shadowRadius: 20,
       },
       android: {
         elevation: 12,
       },
       web: {
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+        boxShadow: '0 20px 40px rgba(15, 23, 42, 0.2)',
       },
     }),
   },
@@ -137,13 +137,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: '#0F172A',
     marginBottom: 8,
     textAlign: 'center',
   },
   description: {
     fontSize: 14,
-    color: '#94A3B8',
+    color: '#64748B',
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 20,
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   roleTagTextCurrent: {
-    color: '#FCA5A5',
+    color: '#DC2626',
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'capitalize',
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(251, 146, 60, 0.3)',
   },
   roleTagTextTargetCust: {
-    color: '#FDBA74',
+    color: '#C2410C',
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'capitalize',
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(52, 211, 153, 0.3)',
   },
   roleTagTextTargetPro: {
-    color: '#6EE7B7',
+    color: '#059669',
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'capitalize',

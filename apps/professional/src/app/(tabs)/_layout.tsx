@@ -42,15 +42,15 @@ export default function ProfessionalTabsLayout() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: '#0F172A',
-          borderTopColor: '#1E293B',
+          backgroundColor: '#FFFFFF',
+          borderTopColor: '#E2E8F0',
           borderTopWidth: 1,
           height: Platform.OS === 'ios' ? 84 : 64,
           paddingTop: 8,
           paddingBottom: Platform.OS === 'ios' ? 24 : 8,
           ...Platform.select({
             web: {
-              boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.4)',
+              boxShadow: '0 -2px 10px rgba(15, 23, 42, 0.08)',
             },
           }),
         },

@@ -92,7 +92,7 @@ export default function ProfessionalProfileScreen() {
           <View style={styles.nameBlock}>
             <Text style={styles.fullName}>{user?.fullName || 'RuralClap Partner'}</Text>
             <View style={styles.verifiedChip}>
-              <ShieldCheck size={12} color="#34D399" style={{ marginRight: 4 }} />
+              <ShieldCheck size={12} color="#059669" style={{ marginRight: 4 }} />
               <Text style={styles.verifiedChipText}>{t('professional.profile.verifiedExpert')}</Text>
             </View>
             <Text style={styles.partnerIdText}>
@@ -138,8 +138,8 @@ export default function ProfessionalProfileScreen() {
               </View>
               <LanguageToggle
                 accentColor="#10B981"
-                trackColor="#0F172A"
-                inactiveTextColor="#94A3B8"
+                trackColor="#F8FAFC"
+                inactiveTextColor="#64748B"
               />
             </View>
           </View>
@@ -254,7 +254,7 @@ export default function ProfessionalProfileScreen() {
           style={styles.signOutButton}
           activeOpacity={0.8}
           onPress={handleSignOut}>
-          <LogOut size={18} color="#F87171" style={{ marginRight: 8 }} />
+          <LogOut size={18} color="#DC2626" style={{ marginRight: 8 }} />
           <Text style={styles.signOutText}>{t('professional.profile.signOut')}</Text>
         </TouchableOpacity>
 
@@ -267,7 +267,7 @@ export default function ProfessionalProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -280,21 +280,21 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 26,
     fontWeight: '900',
-    color: '#F8FAFC',
+    color: '#0F172A',
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   profileHeaderCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
     marginBottom: 20,
   },
   avatarWrapper: {
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#34D399',
+    borderColor: '#059669',
   },
   verifiedDot: {
     position: 'absolute',
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#1E293B',
+    borderColor: '#FFFFFF',
   },
   nameBlock: {
     alignItems: 'center',
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   fullName: {
     fontSize: 19,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: '#0F172A',
     marginBottom: 4,
   },
   verifiedChip: {
@@ -351,23 +351,23 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   verifiedChipText: {
-    color: '#34D399',
+    color: '#059669',
     fontSize: 11,
     fontWeight: '700',
   },
   partnerIdText: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     fontWeight: '600',
   },
   statsRow: {
     flexDirection: 'row',
     width: '100%',
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
     borderRadius: 14,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
     justifyContent: 'space-around',
     alignItems: 'center',
   },
@@ -378,18 +378,18 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 16,
     fontWeight: '900',
-    color: '#34D399',
+    color: '#059669',
   },
   statLabel: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     fontWeight: '600',
     marginTop: 2,
   },
   statDivider: {
     width: 1,
     height: 28,
-    backgroundColor: '#334155',
+    backgroundColor: '#E2E8F0',
   },
   groupContainer: {
     marginBottom: 18,
@@ -403,11 +403,11 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   infoCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
   },
   infoRow: {
     flexDirection: 'row',
@@ -435,17 +435,17 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#F8FAFC',
+    color: '#0F172A',
     marginTop: 1,
   },
   infoSubtext: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   infoDivider: {
     height: 1,
-    backgroundColor: '#334155',
+    backgroundColor: '#E2E8F0',
     marginVertical: 12,
   },
   payoutStatusRow: {
@@ -455,19 +455,19 @@ const styles = StyleSheet.create({
   payoutStatusTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#F8FAFC',
+    color: '#0F172A',
     marginBottom: 2,
   },
   payoutStatusSub: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     lineHeight: 18,
   },
   menuCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
     overflow: 'hidden',
   },
   menuItem: {
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -488,12 +488,12 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#F8FAFC',
+    color: '#0F172A',
     flex: 1,
   },
   menuDivider: {
     height: 1,
-    backgroundColor: '#334155',
+    backgroundColor: '#E2E8F0',
     marginLeft: 56,
   },
   signOutButton: {
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   signOutText: {
-    color: '#F87171',
+    color: '#DC2626',
     fontSize: 14,
     fontWeight: '800',
   },

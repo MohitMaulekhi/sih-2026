@@ -43,9 +43,9 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           <View style={styles.header}>
             <View style={[styles.badge, isPro ? styles.badgePro : styles.badgeCust]}>
               {isPro ? (
-                <Zap size={14} color="#6EE7B7" style={{ marginRight: 6 }} />
+                <Zap size={14} color="#059669" style={{ marginRight: 6 }} />
               ) : (
-                <Sparkles size={14} color="#FDBA74" style={{ marginRight: 6 }} />
+                <Sparkles size={14} color="#EA580C" style={{ marginRight: 6 }} />
               )}
               <Text
                 style={[
@@ -90,7 +90,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -131,15 +131,15 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   badgeTextCust: {
-    color: '#FDBA74',
+    color: '#C2410C',
   },
   badgeTextPro: {
-    color: '#6EE7B7',
+    color: '#059669',
   },
   brandTitle: {
     fontSize: 32,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
     letterSpacing: -0.5,
     marginBottom: 6,
   },
@@ -152,35 +152,35 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#F8FAFC',
+    color: '#0F172A',
     marginTop: 4,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
-    color: '#94A3B8',
+    color: '#64748B',
     textAlign: 'center',
     marginTop: 4,
     paddingHorizontal: 16,
   },
   card: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 24,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: '#0F172A',
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.25,
+        shadowOpacity: 0.08,
         shadowRadius: 16,
       },
       android: {
-        elevation: 8,
+        elevation: 3,
       },
       web: {
-        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.35)',
+        boxShadow: '0 12px 32px rgba(15, 23, 42, 0.08)',
       },
     }),
   },
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   footerPrompt: {
-    color: '#94A3B8',
+    color: '#64748B',
     fontSize: 14,
   },
   footerAction: {
@@ -199,9 +199,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   footerActionCust: {
-    color: '#FB923C',
+    color: '#EA580C',
   },
   footerActionPro: {
-    color: '#34D399',
+    color: '#059669',
   },
 });

@@ -119,7 +119,7 @@ export default function ProfessionalDashboardScreen() {
                 {user?.fullName || 'Partner'}
               </Text>
               <View style={styles.verifiedBadge}>
-                <ShieldCheck size={12} color="#34D399" style={{ marginRight: 3 }} />
+                <ShieldCheck size={12} color="#059669" style={{ marginRight: 3 }} />
                 <Text style={styles.verifiedBadgeText}>Verified</Text>
               </View>
             </View>
@@ -149,8 +149,8 @@ export default function ProfessionalDashboardScreen() {
             <Switch
               value={isOnline}
               onValueChange={handleToggleOnline}
-              trackColor={{ false: '#334155', true: '#059669' }}
-              thumbColor={isOnline ? '#34D399' : '#94A3B8'}
+              trackColor={{ false: '#E2E8F0', true: '#059669' }}
+              thumbColor={isOnline ? '#34D399' : '#64748B'}
             />
           </View>
         </View>
@@ -191,7 +191,7 @@ export default function ProfessionalDashboardScreen() {
         {/* Incoming Leads / Job Requests Queue */}
         <View style={styles.sectionHeaderRow}>
           <View style={styles.sectionTitleRow}>
-            <Bell size={18} color="#60A5FA" style={{ marginRight: 6 }} />
+            <Bell size={18} color="#2563EB" style={{ marginRight: 6 }} />
             <Text style={styles.sectionTitle}>{t('professional.dashboard.incomingRequests')}</Text>
           </View>
           <View style={styles.countBadge}>
@@ -230,13 +230,13 @@ export default function ProfessionalDashboardScreen() {
 
                 <View style={styles.requestMetaRow}>
                   <View style={styles.metaItem}>
-                    <Calendar size={12} color="#CBD5E1" style={{ marginRight: 4 }} />
+                    <Calendar size={12} color="#64748B" style={{ marginRight: 4 }} />
                     <Text style={styles.requestMeta}>
                       {formatDate(req.scheduledDate)}
                     </Text>
                   </View>
                   <View style={styles.metaItem}>
-                    <Clock size={12} color="#CBD5E1" style={{ marginRight: 4 }} />
+                    <Clock size={12} color="#64748B" style={{ marginRight: 4 }} />
                     <Text style={styles.requestMeta}>
                       {req.scheduledTimeSlot}
                     </Text>
@@ -244,7 +244,7 @@ export default function ProfessionalDashboardScreen() {
                 </View>
 
                 <View style={styles.requestLocationRow}>
-                  <MapPin size={13} color="#94A3B8" style={{ marginRight: 6, marginTop: 1 }} />
+                  <MapPin size={13} color="#64748B" style={{ marginRight: 6, marginTop: 1 }} />
                   <Text style={styles.requestLocationText} numberOfLines={2}>
                     {req.customerAddress}
                   </Text>
@@ -252,7 +252,7 @@ export default function ProfessionalDashboardScreen() {
 
                 {req.customerNotes && (
                   <View style={styles.customerNotesBox}>
-                    <MessageSquare size={13} color="#FCD34D" style={{ marginRight: 6, marginTop: 1 }} />
+                    <MessageSquare size={13} color="#D97706" style={{ marginRight: 6, marginTop: 1 }} />
                     <Text style={styles.customerNotesText}>
                       "{req.customerNotes}"
                     </Text>
@@ -277,7 +277,7 @@ export default function ProfessionalDashboardScreen() {
         {/* Active & In-Progress Jobs */}
         <View style={styles.sectionHeaderRow}>
           <View style={styles.sectionTitleRow}>
-            <CalendarCheck size={18} color="#34D399" style={{ marginRight: 6 }} />
+            <CalendarCheck size={18} color="#059669" style={{ marginRight: 6 }} />
             <Text style={styles.sectionTitle}>{t('professional.dashboard.todaysSchedule')}</Text>
           </View>
           <View style={styles.countBadge}>
@@ -310,14 +310,14 @@ export default function ProfessionalDashboardScreen() {
                 </View>
 
                 <View style={styles.jobDetailsRow}>
-                  <Clock size={12} color="#CBD5E1" style={{ marginRight: 4 }} />
+                  <Clock size={12} color="#64748B" style={{ marginRight: 4 }} />
                   <Text style={styles.jobDetailText}>
                     {job.scheduledTimeSlot} • {formatDate(job.scheduledDate)}
                   </Text>
                 </View>
 
                 <View style={styles.jobAddressRow}>
-                  <MapPin size={13} color="#94A3B8" style={{ marginRight: 6, marginTop: 1 }} />
+                  <MapPin size={13} color="#64748B" style={{ marginRight: 6, marginTop: 1 }} />
                   <Text style={styles.jobAddressText}>
                     {job.customerAddress}
                   </Text>
@@ -325,7 +325,7 @@ export default function ProfessionalDashboardScreen() {
 
                 {/* Customer Contact */}
                 <View style={styles.contactBar}>
-                  <Phone size={13} color="#60A5FA" style={{ marginRight: 6 }} />
+                  <Phone size={13} color="#2563EB" style={{ marginRight: 6 }} />
                   <Text style={styles.phoneLabel}>
                     Contact: {job.customerPhone}
                   </Text>
@@ -370,7 +370,7 @@ export default function ProfessionalDashboardScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
   },
   scrollContent: {
     padding: 16,
@@ -381,11 +381,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
   },
   partnerInfo: {
     flex: 1,
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   partnerName: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: '#0F172A',
   },
   verifiedBadge: {
     flexDirection: 'row',
@@ -410,13 +410,13 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   verifiedBadgeText: {
-    color: '#34D399',
+    color: '#059669',
     fontSize: 10,
     fontWeight: '800',
   },
   partnerSub: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     fontWeight: '600',
   },
   onlineToggleCard: {
@@ -442,14 +442,14 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   onlineTextActive: {
-    color: '#34D399',
+    color: '#059669',
   },
   onlineTextInactive: {
-    color: '#F87171',
+    color: '#DC2626',
   },
   onlineSubText: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#64748B',
   },
   metricsGrid: {
     flexDirection: 'row',
@@ -458,27 +458,27 @@ const styles = StyleSheet.create({
   },
   metricCard: {
     width: '48%',
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
   },
   metricLabel: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     fontWeight: '600',
     marginBottom: 4,
   },
   metricNumber: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginBottom: 2,
   },
   metricGrowth: {
     fontSize: 11,
-    color: '#34D399',
+    color: '#059669',
     fontWeight: '600',
   },
   sectionHeaderRow: {
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: '#0F172A',
   },
   countBadge: {
     backgroundColor: '#10B981',
@@ -508,22 +508,22 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   emptyCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
   },
   emptyTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: '#0F172A',
     marginBottom: 4,
   },
   emptySubtitle: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     textAlign: 'center',
     lineHeight: 18,
     maxWidth: 260,
@@ -532,11 +532,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   requestCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1.5,
-    borderColor: '#3B82F6',
+    borderColor: '#2563EB',
   },
   requestCardHeader: {
     flexDirection: 'row',
@@ -547,12 +547,12 @@ const styles = StyleSheet.create({
   requestBookingNum: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#60A5FA',
+    color: '#2563EB',
   },
   requestServiceTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: '#0F172A',
     marginTop: 2,
   },
   payoutBadge: {
@@ -566,14 +566,14 @@ const styles = StyleSheet.create({
   },
   payoutLabel: {
     fontSize: 9,
-    color: '#6EE7B7',
+    color: '#059669',
     fontWeight: '700',
     textTransform: 'uppercase',
   },
   payoutAmount: {
     fontSize: 15,
     fontWeight: '900',
-    color: '#34D399',
+    color: '#059669',
   },
   requestMetaRow: {
     flexDirection: 'row',
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
   },
   requestMeta: {
     fontSize: 12,
-    color: '#CBD5E1',
+    color: '#64748B',
     fontWeight: '600',
   },
   requestLocationRow: {
@@ -596,23 +596,23 @@ const styles = StyleSheet.create({
   },
   requestLocationText: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     flex: 1,
     lineHeight: 16,
   },
   customerNotesBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
     padding: 10,
     borderRadius: 10,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
   },
   customerNotesText: {
     fontSize: 12,
-    color: '#FCD34D',
+    color: '#D97706',
     fontStyle: 'italic',
     flex: 1,
   },
@@ -636,11 +636,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   activeJobCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
   },
   activeJobHeader: {
     flexDirection: 'row',
@@ -651,11 +651,11 @@ const styles = StyleSheet.create({
   jobCustomerName: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: '#0F172A',
   },
   jobServiceTitle: {
     fontSize: 13,
-    color: '#94A3B8',
+    color: '#64748B',
     fontWeight: '600',
     marginTop: 1,
   },
@@ -666,7 +666,7 @@ const styles = StyleSheet.create({
   },
   jobDetailText: {
     fontSize: 12,
-    color: '#CBD5E1',
+    color: '#64748B',
     fontWeight: '600',
   },
   jobAddressRow: {
@@ -676,21 +676,21 @@ const styles = StyleSheet.create({
   },
   jobAddressText: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     flex: 1,
     lineHeight: 16,
   },
   contactBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F172A',
+    backgroundColor: '#F8FAFC',
     padding: 10,
     borderRadius: 10,
     marginBottom: 12,
   },
   phoneLabel: {
     fontSize: 13,
-    color: '#60A5FA',
+    color: '#2563EB',
     fontWeight: '700',
   },
   jobActionsRow: {

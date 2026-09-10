@@ -27,7 +27,40 @@ const supabaseAnonKey =
   process.env.SUPABASE_ANON_KEY ||
   DEFAULT_SUPABASE_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// This client never manages auth sessions — that's @repo/auth's job. Disabling
+// session persistence/refresh here prevents a second competing GoTrueClient
+// instance from being created in the same app. It still needs to send the
+// signed-in user's access token on requests (RLS policies like "Professionals
+// can manage their offered services" check auth.uid()), so @repo/auth pushes
+// the current token in via setDbAuthToken whenever its session changes.
+let currentAccessToken: string | null = null;
+
+export function setDbAuthToken(token: string | null): void {
+  if (token === currentAccessToken) return;
+  currentAccessToken = token;
+
+  // Realtime's auth is only read once at socket-connect time, so it needs to
+  // be pushed explicitly whenever the token changes (unlike REST calls, which
+  // read currentAccessToken fresh on every request via the accessToken option
+  // above).
+  supabase.realtime.setAuth(token).catch(() => {});
+
+  // The store's very first sync runs at module load, before any session
+  // exists, so RLS-protected tables (categories, services, ...) come back
+  // empty under the anonymous role. Re-sync once we actually have a session.
+  if (token) {
+    dbStore.syncFromSupabase();
+  }
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+  },
+  accessToken: async () => currentAccessToken,
+});
 
 /**
  * Shared Reactive Data Store backed by Supabase & Reactive Sync
