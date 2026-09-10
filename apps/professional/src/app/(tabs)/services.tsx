@@ -15,10 +15,12 @@ import { useAuth } from '@repo/auth';
 import { dbStore } from '@repo/db';
 import { Service, ServiceCategory, ProfessionalService } from '@repo/types';
 import { formatCurrency, formatDuration } from '@repo/utils';
+import { useTranslation } from '@repo/i18n';
 import { Zap, Clock, Wrench } from 'lucide-react-native';
 
 export default function ProfessionalServicesScreen() {
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [allServices, setAllServices] = useState<Service[]>([]);
@@ -79,9 +81,9 @@ export default function ProfessionalServicesScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Service Offerings</Text>
+        <Text style={styles.headerTitle}>{t('professional.services.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          Select which services you can fulfill to receive customer requests
+          {t('professional.services.subtitle')}
         </Text>
 
         {/* Stats banner */}
@@ -89,11 +91,11 @@ export default function ProfessionalServicesScreen() {
           <View style={styles.activeBadge}>
             <Zap size={12} color="#34D399" style={{ marginRight: 4 }} />
             <Text style={styles.activeBadgeText}>
-              {activeCount} Services Active
+              {activeCount} {t('professional.services.servicesActive')}
             </Text>
           </View>
           <Text style={styles.activeSub}>
-            Customers in your city can book these services from your profile
+            {t('professional.services.activeSub')}
           </Text>
         </View>
 
@@ -113,7 +115,7 @@ export default function ProfessionalServicesScreen() {
                 styles.chipText,
                 selectedCategory === 'all' && styles.chipTextSelected,
               ]}>
-              All Categories
+              {t('professional.services.allCategories')}
             </Text>
           </TouchableOpacity>
 
@@ -185,7 +187,7 @@ export default function ProfessionalServicesScreen() {
                       </Text>
                     </View>
                     <Text style={styles.priceText}>
-                      Payout: {formatCurrency(price)}
+                      {t('professional.services.payout')}: {formatCurrency(price)}
                     </Text>
                   </View>
 
@@ -203,7 +205,7 @@ export default function ProfessionalServicesScreen() {
                           ? styles.statusPillTextActive
                           : styles.statusPillTextInactive,
                       ]}>
-                      {active ? '● Offering' : '○ Not Offering'}
+                      {active ? t('professional.services.offering') : t('professional.services.notOffering')}
                     </Text>
                   </View>
                 </View>

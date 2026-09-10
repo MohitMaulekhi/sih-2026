@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Text, View, StyleSheet, Platform } from 'react-native';
 import { LayoutDashboard, ClipboardList, Wrench, User } from 'lucide-react-native';
+import { useTranslation } from '@repo/i18n';
 
 interface TabIconProps {
   focused: boolean;
@@ -33,6 +34,8 @@ const TabIcon: React.FC<TabIconProps> = ({ focused, IconComponent, label }) => {
 };
 
 export default function ProfessionalTabsLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -55,36 +58,36 @@ export default function ProfessionalTabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Dashboard',
+          title: t('tabs.professional.dashboard'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} IconComponent={LayoutDashboard} label="Dashboard" />
+            <TabIcon focused={focused} IconComponent={LayoutDashboard} label={t('tabs.professional.dashboard')} />
           ),
         }}
       />
       <Tabs.Screen
         name="bookings"
         options={{
-          title: 'Jobs',
+          title: t('tabs.professional.jobs'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} IconComponent={ClipboardList} label="Jobs" />
+            <TabIcon focused={focused} IconComponent={ClipboardList} label={t('tabs.professional.jobs')} />
           ),
         }}
       />
       <Tabs.Screen
         name="services"
         options={{
-          title: 'My Services',
+          title: t('tabs.professional.services'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} IconComponent={Wrench} label="My Services" />
+            <TabIcon focused={focused} IconComponent={Wrench} label={t('tabs.professional.services')} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tabs.professional.profile'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} IconComponent={User} label="Profile" />
+            <TabIcon focused={focused} IconComponent={User} label={t('tabs.professional.profile')} />
           ),
         }}
       />

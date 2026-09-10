@@ -12,10 +12,6 @@ import {
 } from '@repo/types';
 import { generateBookingNumber } from '@repo/utils';
 import { createClient } from '@supabase/supabase-js';
-import {
-  SEED_CATEGORIES,
-  SEED_SERVICES,
-} from './seed-data';
 
 const DEFAULT_SUPABASE_URL = 'https://zogktmqmoeauncwbpxqz.supabase.co';
 const DEFAULT_SUPABASE_KEY = 'sb_publishable_iEWxkLSTfMCMxvpnax8flw_ZrTwIGyh';
@@ -37,8 +33,8 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
  * Shared Reactive Data Store backed by Supabase & Reactive Sync
  */
 class UrbanCompanyStore {
-  private categories: ServiceCategory[] = [...SEED_CATEGORIES];
-  private services: Service[] = [...SEED_SERVICES];
+  private categories: ServiceCategory[] = [];
+  private services: Service[] = [];
   private profiles: UserProfile[] = [];
   private professionalServices: ProfessionalService[] = [];
   private bookings: Booking[] = [];
@@ -47,6 +43,114 @@ class UrbanCompanyStore {
 
   constructor() {
     this.syncFromSupabase();
+    this.subscribeToRealtime();
+  }
+
+  /**
+   * Live Postgres change subscriptions. Without this, each app instance only ever
+   * sees the data that existed at construction time (e.g. a professional's app would
+   * never learn about a new customer booking, cancellation, or review until restart).
+   */
+  private subscribeToRealtime() {
+    supabase
+      .channel('bookings-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'bookings' },
+        (payload) => this.applyBookingChange(payload)
+      )
+      .subscribe();
+
+    supabase
+      .channel('professional-services-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'professional_services' },
+        (payload) => this.applyProfessionalServiceChange(payload)
+      )
+      .subscribe();
+  }
+
+  private mapBookingRow(b: any): Booking {
+    return {
+      id: b.id,
+      bookingNumber: b.booking_number,
+      customerId: b.customer_id,
+      professionalId: b.professional_id,
+      serviceId: b.service_id,
+      status: b.status,
+      scheduledDate: b.scheduled_date,
+      scheduledTimeSlot: b.scheduled_time_slot,
+      totalPrice: b.total_price,
+      customerAddress: b.customer_address,
+      customerPhone: b.customer_phone,
+      customerNotes: b.customer_notes,
+      cancellationReason: b.cancellation_reason,
+      rating: b.rating,
+      reviewText: b.review_text,
+      paymentStatus: b.payment_status,
+      paymentMethod: b.payment_method,
+      createdAt: b.created_at,
+      updatedAt: b.updated_at,
+    };
+  }
+
+  private applyBookingChange(payload: {
+    eventType: string;
+    new: Record<string, any>;
+    old: Record<string, any>;
+  }) {
+    if (payload.eventType === 'DELETE') {
+      this.bookings = this.bookings.filter((b) => b.id !== payload.old.id);
+      this.notify();
+      return;
+    }
+
+    const incoming = this.mapBookingRow(payload.new);
+    // Match by id first; fall back to bookingNumber since createBooking() assigns a
+    // temporary local id optimistically while Supabase generates its own row id.
+    const index = this.bookings.findIndex(
+      (b) => b.id === incoming.id || b.bookingNumber === incoming.bookingNumber
+    );
+    if (index >= 0) {
+      this.bookings[index] = incoming;
+    } else {
+      this.bookings.unshift(incoming);
+    }
+    this.notify();
+  }
+
+  private applyProfessionalServiceChange(payload: {
+    eventType: string;
+    new: Record<string, any>;
+    old: Record<string, any>;
+  }) {
+    if (payload.eventType === 'DELETE') {
+      this.professionalServices = this.professionalServices.filter(
+        (ps) => ps.id !== payload.old.id
+      );
+      this.notify();
+      return;
+    }
+
+    const ps = payload.new;
+    const incoming: ProfessionalService = {
+      id: ps.id,
+      professionalId: ps.professional_id,
+      serviceId: ps.service_id,
+      customPrice: ps.custom_price,
+      isAvailable: ps.is_available,
+      experienceNotes: ps.experience_notes,
+      completedJobsCount: ps.completed_jobs_count || 0,
+      createdAt: ps.created_at,
+    };
+    const index = this.professionalServices.findIndex((p) => p.id === incoming.id);
+    if (index >= 0) {
+      this.professionalServices[index] = incoming;
+    } else {
+      this.professionalServices.push(incoming);
+    }
+    this.notify();
   }
 
   subscribe(listener: () => void) {
@@ -123,27 +227,7 @@ class UrbanCompanyStore {
         .order('created_at', { ascending: false });
 
       if (bData && bData.length > 0) {
-        this.bookings = bData.map((b) => ({
-          id: b.id,
-          bookingNumber: b.booking_number,
-          customerId: b.customer_id,
-          professionalId: b.professional_id,
-          serviceId: b.service_id,
-          status: b.status,
-          scheduledDate: b.scheduled_date,
-          scheduledTimeSlot: b.scheduled_time_slot,
-          totalPrice: b.total_price,
-          customerAddress: b.customer_address,
-          customerPhone: b.customer_phone,
-          customerNotes: b.customer_notes,
-          cancellationReason: b.cancellation_reason,
-          rating: b.rating,
-          reviewText: b.review_text,
-          paymentStatus: b.payment_status,
-          paymentMethod: b.payment_method,
-          createdAt: b.created_at,
-          updatedAt: b.updated_at,
-        }));
+        this.bookings = bData.map((b) => this.mapBookingRow(b));
       }
 
       // 4. Fetch Professional Services

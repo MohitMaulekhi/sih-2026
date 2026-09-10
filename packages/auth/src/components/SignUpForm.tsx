@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { UserRole } from '@repo/types';
 import { SignUpData } from '../auth-context';
+import { useTranslation } from '@repo/i18n';
 import { AlertCircle, User, Mail, Phone, MapPin, Briefcase, Lock } from 'lucide-react-native';
 
 interface SignUpFormProps {
@@ -23,6 +24,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   isLoading = false,
 }) => {
   const isPro = role === 'professional';
+  const { t } = useTranslation();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -35,19 +37,19 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
   const handleSubmit = async () => {
     if (!fullName.trim()) {
-      setErrorMessage('Please enter your full name');
+      setErrorMessage(t('auth.form.errorEnterFullName'));
       return;
     }
     if (!email.trim()) {
-      setErrorMessage('Please enter your email address');
+      setErrorMessage(t('auth.form.errorEnterEmail'));
       return;
     }
     if (!password.trim() || password.length < 6) {
-      setErrorMessage('Password must be at least 6 characters long');
+      setErrorMessage(t('auth.form.errorPasswordMinLength'));
       return;
     }
     if (!phone.trim()) {
-      setErrorMessage('Please enter your phone number');
+      setErrorMessage(t('auth.form.errorEnterPhone'));
       return;
     }
 
@@ -79,12 +81,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* Full Name */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Full Name</Text>
+        <Text style={styles.label}>{t('auth.form.fullNameLabel')}</Text>
         <View style={styles.inputContainer}>
           <User size={16} color="#64748B" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="e.g. Rahul Sharma"
+            placeholder={t('auth.form.fullNamePlaceholder')}
             placeholderTextColor="#64748B"
             value={fullName}
             onChangeText={setFullName}
@@ -94,12 +96,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* Email */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Email Address</Text>
+        <Text style={styles.label}>{t('auth.form.emailLabel')}</Text>
         <View style={styles.inputContainer}>
           <Mail size={16} color="#64748B" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="e.g. rahul@example.com"
+            placeholder={t('auth.form.emailPlaceholder')}
             placeholderTextColor="#64748B"
             value={email}
             onChangeText={setEmail}
@@ -111,12 +113,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* Phone */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Phone Number</Text>
+        <Text style={styles.label}>{t('auth.form.phoneLabel')}</Text>
         <View style={styles.inputContainer}>
           <Phone size={16} color="#64748B" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="+91 98765 43210"
+            placeholder={t('auth.form.phonePlaceholder')}
             placeholderTextColor="#64748B"
             value={phone}
             onChangeText={setPhone}
@@ -127,12 +129,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* City */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.label}>City</Text>
+        <Text style={styles.label}>{t('auth.form.cityLabel')}</Text>
         <View style={styles.inputContainer}>
           <MapPin size={16} color="#64748B" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Bengaluru"
+            placeholder={t('auth.form.cityPlaceholder')}
             placeholderTextColor="#64748B"
             value={city}
             onChangeText={setCity}
@@ -144,12 +146,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       {isPro && (
         <>
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Years of Experience</Text>
+            <Text style={styles.label}>{t('auth.form.experienceLabel')}</Text>
             <View style={styles.inputContainer}>
               <Briefcase size={16} color="#64748B" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="e.g. 5"
+                placeholder={t('auth.form.experiencePlaceholder')}
                 placeholderTextColor="#64748B"
                 value={experienceYears}
                 onChangeText={setExperienceYears}
@@ -159,10 +161,10 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           </View>
 
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Professional Bio & Skills</Text>
+            <Text style={styles.label}>{t('auth.form.bioLabel')}</Text>
             <TextInput
               style={[styles.inputStandalone, styles.textArea]}
-              placeholder="e.g. Certified technician specializing in AC repair & cleaning..."
+              placeholder={t('auth.form.bioPlaceholder')}
               placeholderTextColor="#64748B"
               value={bio}
               onChangeText={setBio}
@@ -175,12 +177,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* Password */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Create Password</Text>
+        <Text style={styles.label}>{t('auth.form.createPasswordLabel')}</Text>
         <View style={styles.inputContainer}>
           <Lock size={16} color="#64748B" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Minimum 6 characters"
+            placeholder={t('auth.form.createPasswordPlaceholder')}
             placeholderTextColor="#64748B"
             value={password}
             onChangeText={setPassword}
@@ -203,7 +205,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           <ActivityIndicator color="#FFFFFF" size="small" />
         ) : (
           <Text style={styles.submitButtonText}>
-            {isPro ? 'Register as Partner' : 'Create Customer Account'}
+            {isPro ? t('auth.form.registerAsPartner') : t('auth.form.createCustomerAccount')}
           </Text>
         )}
       </TouchableOpacity>

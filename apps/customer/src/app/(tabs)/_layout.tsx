@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Text, View, StyleSheet, Platform } from 'react-native';
 import { Home, Compass, Calendar, User } from 'lucide-react-native';
+import { useTranslation } from '@repo/i18n';
 
 interface TabIconProps {
   focused: boolean;
@@ -33,6 +34,8 @@ const TabIcon: React.FC<TabIconProps> = ({ focused, IconComponent, label }) => {
 };
 
 export default function CustomerTabsLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -55,36 +58,36 @@ export default function CustomerTabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('tabs.customer.home'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} IconComponent={Home} label="Home" />
+            <TabIcon focused={focused} IconComponent={Home} label={t('tabs.customer.home')} />
           ),
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
+          title: t('tabs.customer.explore'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} IconComponent={Compass} label="Explore" />
+            <TabIcon focused={focused} IconComponent={Compass} label={t('tabs.customer.explore')} />
           ),
         }}
       />
       <Tabs.Screen
         name="bookings"
         options={{
-          title: 'Bookings',
+          title: t('tabs.customer.bookings'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} IconComponent={Calendar} label="Bookings" />
+            <TabIcon focused={focused} IconComponent={Calendar} label={t('tabs.customer.bookings')} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Account',
+          title: t('tabs.customer.account'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} IconComponent={User} label="Account" />
+            <TabIcon focused={focused} IconComponent={User} label={t('tabs.customer.account')} />
           ),
         }}
       />

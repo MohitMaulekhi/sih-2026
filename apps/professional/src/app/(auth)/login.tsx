@@ -1,10 +1,12 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
 import { useAuth, AuthLayout, LoginForm } from '@repo/auth';
+import { useTranslation } from '@repo/i18n';
 
 export default function ProfessionalLoginScreen() {
   const router = useRouter();
   const { signIn, isLoading } = useAuth();
+  const { t } = useTranslation();
 
   const handleSignIn = async (email: string, password?: string) => {
     const result = await signIn(email, password);
@@ -17,10 +19,10 @@ export default function ProfessionalLoginScreen() {
   return (
     <AuthLayout
       role="professional"
-      title="Partner Login"
-      subtitle="Accept customer job requests, manage schedule & track payouts"
-      footerPrompt="Want to become a service partner?"
-      footerActionText="Register Today"
+      title={t('auth.login.professionalTitle')}
+      subtitle={t('auth.login.professionalSubtitle')}
+      footerPrompt={t('auth.login.professionalFooterPrompt')}
+      footerActionText={t('auth.login.professionalFooterAction')}
       onFooterActionPress={() => router.push('/(auth)/register' as any)}>
       <LoginForm
         role="professional"

@@ -21,6 +21,7 @@ import {
   EmptyState,
 } from '@repo/ui';
 import { formatCurrency, formatDate } from '@repo/utils';
+import { useTranslation } from '@repo/i18n';
 import {
   Calendar,
   Clock,
@@ -35,6 +36,7 @@ import {
 export default function CustomerBookingsScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'completed' | 'cancelled'>('active');
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -103,9 +105,9 @@ export default function CustomerBookingsScreen() {
     <SafeAreaView style={styles.safeArea}>
       {/* Top Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Bookings</Text>
+        <Text style={styles.headerTitle}>{t('customer.bookings.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          Track active services & view history
+          {t('customer.bookings.subtitle')}
         </Text>
 
         {/* Tab Filters */}
@@ -118,7 +120,7 @@ export default function CustomerBookingsScreen() {
                 styles.tabBtnText,
                 activeTab === 'active' && styles.tabBtnTextActive,
               ]}>
-              Active ({bookings.filter((b) => ['pending', 'accepted', 'in_progress'].includes(b.status)).length})
+              {t('customer.bookings.active')} ({bookings.filter((b) => ['pending', 'accepted', 'in_progress'].includes(b.status)).length})
             </Text>
           </TouchableOpacity>
 
@@ -130,7 +132,7 @@ export default function CustomerBookingsScreen() {
                 styles.tabBtnText,
                 activeTab === 'completed' && styles.tabBtnTextActive,
               ]}>
-              Completed
+              {t('customer.bookings.completed')}
             </Text>
           </TouchableOpacity>
 
@@ -142,7 +144,7 @@ export default function CustomerBookingsScreen() {
                 styles.tabBtnText,
                 activeTab === 'cancelled' && styles.tabBtnTextActive,
               ]}>
-              Cancelled
+              {t('customer.bookings.cancelled')}
             </Text>
           </TouchableOpacity>
 
@@ -154,7 +156,7 @@ export default function CustomerBookingsScreen() {
                 styles.tabBtnText,
                 activeTab === 'all' && styles.tabBtnTextActive,
               ]}>
-              All ({bookings.length})
+              {t('customer.bookings.all')} ({bookings.length})
             </Text>
           </TouchableOpacity>
         </View>
@@ -167,13 +169,13 @@ export default function CustomerBookingsScreen() {
         {filteredBookings.length === 0 ? (
           <EmptyState
             icon="clipboard"
-            title="No Bookings Found"
+            title={t('customer.bookings.noBookings')}
             description={
               activeTab === 'active'
                 ? "You don't have any ongoing or scheduled services right now."
                 : 'No services found under this tab.'
             }
-            actionText="Book a Service Now"
+            actionText={t('customer.bookings.bookNow')}
             onAction={() => router.push('/(tabs)' as any)}
           />
         ) : (
@@ -323,7 +325,7 @@ export default function CustomerBookingsScreen() {
                         setSelectedBookingForCancel(booking);
                         setCancelModalVisible(true);
                       }}>
-                      <Text style={styles.cancelBtnText}>Cancel</Text>
+                      <Text style={styles.cancelBtnText}>{t('customer.bookings.cancel')}</Text>
                     </TouchableOpacity>
                   )}
 
@@ -338,7 +340,7 @@ export default function CustomerBookingsScreen() {
                         setRatingModalVisible(true);
                       }}>
                       <Star size={13} color="#FFFFFF" fill="#FFFFFF" style={{ marginRight: 4 }} />
-                      <Text style={styles.rateBtnText}>Rate Service</Text>
+                      <Text style={styles.rateBtnText}>{t('customer.bookings.rateService')}</Text>
                     </TouchableOpacity>
                   )}
 
@@ -350,7 +352,7 @@ export default function CustomerBookingsScreen() {
                       onPress={() =>
                         router.push(`/book/${booking.serviceId}` as any)
                       }>
-                      <Text style={styles.bookAgainBtnText}>Book Again</Text>
+                      <Text style={styles.bookAgainBtnText}>{t('customer.bookings.bookAgain')}</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -368,7 +370,7 @@ export default function CustomerBookingsScreen() {
         onRequestClose={() => setCancelModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Cancel Service Booking?</Text>
+            <Text style={styles.modalTitle}>{t('customer.bookings.cancelModalTitle')}</Text>
             <Text style={styles.modalSubtitle}>
               Are you sure you want to cancel booking #
               {selectedBookingForCancel?.bookingNumber}?
@@ -400,12 +402,12 @@ export default function CustomerBookingsScreen() {
               <TouchableOpacity
                 style={styles.modalCancelBtn}
                 onPress={() => setCancelModalVisible(false)}>
-                <Text style={styles.modalCancelBtnText}>Keep Booking</Text>
+                <Text style={styles.modalCancelBtnText}>{t('customer.bookings.keepBooking')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalConfirmBtn}
                 onPress={handleCancelBooking}>
-                <Text style={styles.modalConfirmBtnText}>Confirm Cancel</Text>
+                <Text style={styles.modalConfirmBtnText}>{t('customer.bookings.confirmCancel')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -420,7 +422,7 @@ export default function CustomerBookingsScreen() {
         onRequestClose={() => setRatingModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Rate Your Experience</Text>
+            <Text style={styles.modalTitle}>{t('customer.bookings.rateModalTitle')}</Text>
             <Text style={styles.modalSubtitle}>
               {selectedBookingForRating?.service?.title} with{' '}
               {selectedBookingForRating?.professional?.fullName || 'our partner'}
@@ -457,13 +459,13 @@ export default function CustomerBookingsScreen() {
               <TouchableOpacity
                 style={styles.modalCancelBtn}
                 onPress={() => setRatingModalVisible(false)}>
-                <Text style={styles.modalCancelBtnText}>Skip</Text>
+                <Text style={styles.modalCancelBtnText}>{t('customer.bookings.skip')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalSubmitRatingBtn}
                 onPress={handleRateBooking}>
                 <Text style={styles.modalSubmitRatingBtnText}>
-                  Submit Review
+                  {t('customer.bookings.submitReview')}
                 </Text>
               </TouchableOpacity>
             </View>

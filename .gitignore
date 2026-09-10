@@ -26,6 +26,10 @@ coverage
 out/
 build
 dist
+android/
+apks/
+*.apk
+*.aab
 
 
 # Debug

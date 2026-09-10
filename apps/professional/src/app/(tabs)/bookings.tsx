@@ -14,6 +14,7 @@ import { dbStore } from '@repo/db';
 import { Booking } from '@repo/types';
 import { StatusBadge, EmptyState } from '@repo/ui';
 import { formatCurrency, formatDate } from '@repo/utils';
+import { useTranslation } from '@repo/i18n';
 import {
   Calendar,
   Clock,
@@ -27,6 +28,7 @@ import {
 
 export default function ProfessionalBookingsScreen() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'requests' | 'active' | 'completed' | 'all'>('active');
   const [bookings, setBookings] = useState<Booking[]>([]);
 
@@ -85,9 +87,9 @@ export default function ProfessionalBookingsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Job Management</Text>
+        <Text style={styles.headerTitle}>{t('professional.bookings.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          Track leads, schedule & completed service payouts
+          {t('professional.bookings.subtitle')}
         </Text>
 
         {/* Tab Selector */}
@@ -100,7 +102,7 @@ export default function ProfessionalBookingsScreen() {
                 styles.tabBtnText,
                 activeTab === 'requests' && styles.tabBtnTextActive,
               ]}>
-              Requests ({bookings.filter((b) => b.status === 'pending').length})
+              {t('professional.bookings.requests')} ({bookings.filter((b) => b.status === 'pending').length})
             </Text>
           </TouchableOpacity>
 
@@ -112,7 +114,7 @@ export default function ProfessionalBookingsScreen() {
                 styles.tabBtnText,
                 activeTab === 'active' && styles.tabBtnTextActive,
               ]}>
-              Active (
+              {t('professional.bookings.active')} (
               {
                 bookings.filter(
                   (b) =>
@@ -135,7 +137,7 @@ export default function ProfessionalBookingsScreen() {
                 styles.tabBtnText,
                 activeTab === 'completed' && styles.tabBtnTextActive,
               ]}>
-              Completed
+              {t('professional.bookings.completed')}
             </Text>
           </TouchableOpacity>
 
@@ -147,7 +149,7 @@ export default function ProfessionalBookingsScreen() {
                 styles.tabBtnText,
                 activeTab === 'all' && styles.tabBtnTextActive,
               ]}>
-              All
+              {t('professional.bookings.all')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -160,8 +162,8 @@ export default function ProfessionalBookingsScreen() {
           <View style={styles.emptyContainer}>
             <EmptyState
               icon="clipboard"
-              title="No Bookings in This Tab"
-              description="New bookings and customer assignments will be tracked here."
+              title={t('professional.bookings.noBookings')}
+              description={t('professional.bookings.noBookingsSub')}
             />
           </View>
         ) : (
@@ -231,7 +233,7 @@ export default function ProfessionalBookingsScreen() {
                     activeOpacity={0.8}
                     onPress={() => handleAcceptJob(booking.id)}>
                     <Check size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
-                    <Text style={styles.actionBtnText}>Accept Job</Text>
+                    <Text style={styles.actionBtnText}>{t('professional.bookings.acceptJob')}</Text>
                   </TouchableOpacity>
                 )}
 
@@ -241,7 +243,7 @@ export default function ProfessionalBookingsScreen() {
                     activeOpacity={0.8}
                     onPress={() => handleStartJob(booking.id)}>
                     <Rocket size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
-                    <Text style={styles.actionBtnText}>Start Service</Text>
+                    <Text style={styles.actionBtnText}>{t('professional.bookings.startService')}</Text>
                   </TouchableOpacity>
                 )}
 
@@ -251,7 +253,7 @@ export default function ProfessionalBookingsScreen() {
                     activeOpacity={0.8}
                     onPress={() => handleCompleteJob(booking.id)}>
                     <CheckCircle2 size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
-                    <Text style={styles.actionBtnText}>Mark Complete</Text>
+                    <Text style={styles.actionBtnText}>{t('professional.bookings.markComplete')}</Text>
                   </TouchableOpacity>
                 )}
               </View>

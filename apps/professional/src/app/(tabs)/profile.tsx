@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@repo/auth';
 import { dbStore } from '@repo/db';
 import { formatCurrency } from '@repo/utils';
+import { useTranslation, LanguageToggle } from '@repo/i18n';
 import {
   ShieldCheck,
   Wrench,
@@ -27,11 +28,13 @@ import {
   MapPin,
   HelpCircle,
   Award,
+  Languages,
 } from 'lucide-react-native';
 
 export default function ProfessionalProfileScreen() {
   const router = useRouter();
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
 
   const proJobs = dbStore.getBookings({
     userId: user?.id,
@@ -47,7 +50,7 @@ export default function ProfessionalProfileScreen() {
   );
 
   const handleSignOut = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out of RuralClap Partner?', [
+    Alert.alert(t('professional.profile.signOut'), 'Are you sure you want to sign out of RuralClap Partner?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Sign Out',
@@ -67,8 +70,8 @@ export default function ProfessionalProfileScreen() {
         showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Partner Profile</Text>
-          <Text style={styles.headerSubtitle}>Verified RuralClap Professional</Text>
+          <Text style={styles.headerTitle}>{t('professional.profile.title')}</Text>
+          <Text style={styles.headerSubtitle}>{t('professional.profile.subtitle')}</Text>
         </View>
 
         {/* Profile Card Header */}
@@ -90,7 +93,7 @@ export default function ProfessionalProfileScreen() {
             <Text style={styles.fullName}>{user?.fullName || 'RuralClap Partner'}</Text>
             <View style={styles.verifiedChip}>
               <ShieldCheck size={12} color="#34D399" style={{ marginRight: 4 }} />
-              <Text style={styles.verifiedChipText}>Verified Expert</Text>
+              <Text style={styles.verifiedChipText}>{t('professional.profile.verifiedExpert')}</Text>
             </View>
             <Text style={styles.partnerIdText}>
               ID: #RC-{(user?.id || '8492').slice(-6).toUpperCase()}
@@ -103,37 +106,57 @@ export default function ProfessionalProfileScreen() {
               <Text style={styles.statNumber}>
                 {formatCurrency(totalEarnings)}
               </Text>
-              <Text style={styles.statLabel}>Earnings</Text>
+              <Text style={styles.statLabel}>{t('professional.profile.earnings')}</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>
                 {completedJobs.length}
               </Text>
-              <Text style={styles.statLabel}>Jobs Done</Text>
+              <Text style={styles.statLabel}>{t('professional.profile.jobsDone')}</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>
                 ★ {user?.rating ? Number(user.rating).toFixed(1) : '5.0'}
               </Text>
-              <Text style={styles.statLabel}>Rating</Text>
+              <Text style={styles.statLabel}>{t('professional.profile.rating')}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Language Preference */}
+        <View style={styles.groupContainer}>
+          <Text style={styles.groupHeader}>{t('common.language').toUpperCase()}</Text>
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <View style={styles.infoIconBox}>
+                <Languages size={16} color="#10B981" />
+              </View>
+              <View style={styles.infoTextBox}>
+                <Text style={styles.infoLabel}>{t('common.language')}</Text>
+              </View>
+              <LanguageToggle
+                accentColor="#10B981"
+                trackColor="#0F172A"
+                inactiveTextColor="#94A3B8"
+              />
             </View>
           </View>
         </View>
 
         {/* Experience & Bio */}
         <View style={styles.groupContainer}>
-          <Text style={styles.groupHeader}>SPECIALIZATION & LOCATION</Text>
+          <Text style={styles.groupHeader}>{t('professional.profile.specializationLocation')}</Text>
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
               <View style={styles.infoIconBox}>
                 <Award size={16} color="#10B981" />
               </View>
               <View style={styles.infoTextBox}>
-                <Text style={styles.infoLabel}>Field Experience</Text>
+                <Text style={styles.infoLabel}>{t('professional.profile.fieldExperience')}</Text>
                 <Text style={styles.infoValue}>
-                  {user?.experienceYears || 5}+ Years Verified Experience
+                  {user?.experienceYears || 5}+ {t('professional.profile.yearsExperience')}
                 </Text>
               </View>
             </View>
@@ -145,7 +168,7 @@ export default function ProfessionalProfileScreen() {
                 <MapPin size={16} color="#10B981" />
               </View>
               <View style={styles.infoTextBox}>
-                <Text style={styles.infoLabel}>Service Operating Area</Text>
+                <Text style={styles.infoLabel}>{t('professional.profile.serviceArea')}</Text>
                 <Text style={styles.infoValue}>{user?.city || 'Bengaluru'}</Text>
               </View>
             </View>
@@ -157,7 +180,7 @@ export default function ProfessionalProfileScreen() {
                 <Mail size={16} color="#10B981" />
               </View>
               <View style={styles.infoTextBox}>
-                <Text style={styles.infoLabel}>Contact Email & Phone</Text>
+                <Text style={styles.infoLabel}>{t('professional.profile.contactEmailPhone')}</Text>
                 <Text style={styles.infoValue}>{user?.email || 'partner@ruralclap.in'}</Text>
                 <Text style={styles.infoSubtext}>{user?.phone || '+91 98765 43210'}</Text>
               </View>
@@ -167,14 +190,14 @@ export default function ProfessionalProfileScreen() {
 
         {/* Payout Information */}
         <View style={styles.groupContainer}>
-          <Text style={styles.groupHeader}>PAYMENTS & SETTLEMENTS</Text>
+          <Text style={styles.groupHeader}>{t('professional.profile.paymentsSettlements')}</Text>
           <View style={styles.infoCard}>
             <View style={styles.payoutStatusRow}>
               <CheckCircle2 size={16} color="#10B981" style={{ marginRight: 8, marginTop: 2 }} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.payoutStatusTitle}>Direct Bank Payouts Active</Text>
+                <Text style={styles.payoutStatusTitle}>{t('professional.profile.payoutsActiveTitle')}</Text>
                 <Text style={styles.payoutStatusSub}>
-                  All completed jobs are automatically settled to your verified bank account on a weekly basis.
+                  {t('professional.profile.payoutsActiveSub')}
                 </Text>
               </View>
             </View>
@@ -183,7 +206,7 @@ export default function ProfessionalProfileScreen() {
 
         {/* Actions Menu */}
         <View style={styles.groupContainer}>
-          <Text style={styles.groupHeader}>MANAGEMENT & TOOLS</Text>
+          <Text style={styles.groupHeader}>{t('professional.profile.managementTools')}</Text>
           <View style={styles.menuCard}>
             <TouchableOpacity
               style={styles.menuItem}
@@ -192,7 +215,7 @@ export default function ProfessionalProfileScreen() {
               <View style={styles.menuIconBox}>
                 <Wrench size={18} color="#10B981" />
               </View>
-              <Text style={styles.menuText}>Manage Offered Services</Text>
+              <Text style={styles.menuText}>{t('professional.profile.manageServices')}</Text>
               <ChevronRight size={18} color="#64748B" />
             </TouchableOpacity>
 
@@ -205,7 +228,7 @@ export default function ProfessionalProfileScreen() {
               <View style={styles.menuIconBox}>
                 <ClipboardList size={18} color="#10B981" />
               </View>
-              <Text style={styles.menuText}>Job & Payout History</Text>
+              <Text style={styles.menuText}>{t('professional.profile.jobPayoutHistory')}</Text>
               <ChevronRight size={18} color="#64748B" />
             </TouchableOpacity>
 
@@ -220,7 +243,7 @@ export default function ProfessionalProfileScreen() {
               <View style={styles.menuIconBox}>
                 <HelpCircle size={18} color="#64748B" />
               </View>
-              <Text style={styles.menuText}>Partner Help & Guidelines</Text>
+              <Text style={styles.menuText}>{t('professional.profile.partnerHelp')}</Text>
               <ChevronRight size={18} color="#64748B" />
             </TouchableOpacity>
           </View>
@@ -232,7 +255,7 @@ export default function ProfessionalProfileScreen() {
           activeOpacity={0.8}
           onPress={handleSignOut}>
           <LogOut size={18} color="#F87171" style={{ marginRight: 8 }} />
-          <Text style={styles.signOutText}>Sign Out of Partner Portal</Text>
+          <Text style={styles.signOutText}>{t('professional.profile.signOut')}</Text>
         </TouchableOpacity>
 
         <Text style={styles.versionText}>RuralClap Partner App v1.0.0</Text>

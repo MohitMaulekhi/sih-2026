@@ -16,6 +16,7 @@ import { dbStore } from '@repo/db';
 import { Booking } from '@repo/types';
 import { StatusBadge } from '@repo/ui';
 import { formatCurrency, formatDate } from '@repo/utils';
+import { useTranslation } from '@repo/i18n';
 import {
   ShieldCheck,
   Bell,
@@ -34,6 +35,7 @@ import {
 export default function ProfessionalDashboardScreen() {
   const router = useRouter();
   const { user, updateProfile } = useAuth();
+  const { t } = useTranslation();
 
   const [isOnline, setIsOnline] = useState(user?.isOnline ?? true);
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
@@ -138,10 +140,10 @@ export default function ProfessionalDashboardScreen() {
                   styles.onlineStatusText,
                   isOnline ? styles.onlineTextActive : styles.onlineTextInactive,
                 ]}>
-                {isOnline ? 'ONLINE' : 'OFFLINE'}
+                {isOnline ? t('professional.dashboard.online') : t('professional.dashboard.offline')}
               </Text>
               <Text style={styles.onlineSubText}>
-                {isOnline ? 'Receiving Jobs' : 'Paused'}
+                {isOnline ? t('professional.dashboard.receivingJobs') : t('professional.dashboard.paused')}
               </Text>
             </View>
             <Switch
@@ -156,33 +158,33 @@ export default function ProfessionalDashboardScreen() {
         {/* Metrics Grid */}
         <View style={styles.metricsGrid}>
           <View style={styles.metricCard}>
-            <Text style={styles.metricLabel}>Total Payout</Text>
+            <Text style={styles.metricLabel}>{t('professional.dashboard.totalPayout')}</Text>
             <Text style={styles.metricNumber}>
               {formatCurrency(totalEarnings)}
             </Text>
-            <Text style={styles.metricGrowth}>Lifetime Earnings</Text>
+            <Text style={styles.metricGrowth}>{t('professional.dashboard.lifetimeEarnings')}</Text>
           </View>
 
           <View style={styles.metricCard}>
-            <Text style={styles.metricLabel}>Jobs Done</Text>
+            <Text style={styles.metricLabel}>{t('professional.dashboard.jobsDone')}</Text>
             <Text style={styles.metricNumber}>
               {completedJobs.length}
             </Text>
             <Text style={styles.metricGrowth}>
-              ★ {user?.rating ? Number(user.rating).toFixed(1) : '5.0'} Rating
+              ★ {user?.rating ? Number(user.rating).toFixed(1) : '5.0'} {t('professional.profile.rating')}
             </Text>
           </View>
 
           <View style={styles.metricCard}>
-            <Text style={styles.metricLabel}>Active Jobs</Text>
+            <Text style={styles.metricLabel}>{t('professional.dashboard.activeJobs')}</Text>
             <Text style={styles.metricNumber}>{activeJobs.length}</Text>
-            <Text style={styles.metricGrowth}>Scheduled Today</Text>
+            <Text style={styles.metricGrowth}>{t('professional.dashboard.scheduledToday')}</Text>
           </View>
 
           <View style={styles.metricCard}>
-            <Text style={styles.metricLabel}>Pending Leads</Text>
+            <Text style={styles.metricLabel}>{t('professional.dashboard.pendingLeads')}</Text>
             <Text style={styles.metricNumber}>{incomingRequests.length}</Text>
-            <Text style={styles.metricGrowth}>Ready to Accept</Text>
+            <Text style={styles.metricGrowth}>{t('professional.dashboard.readyToAccept')}</Text>
           </View>
         </View>
 
@@ -190,7 +192,7 @@ export default function ProfessionalDashboardScreen() {
         <View style={styles.sectionHeaderRow}>
           <View style={styles.sectionTitleRow}>
             <Bell size={18} color="#60A5FA" style={{ marginRight: 6 }} />
-            <Text style={styles.sectionTitle}>Incoming Job Requests</Text>
+            <Text style={styles.sectionTitle}>{t('professional.dashboard.incomingRequests')}</Text>
           </View>
           <View style={styles.countBadge}>
             <Text style={styles.countBadgeText}>{incomingRequests.length}</Text>
@@ -200,9 +202,9 @@ export default function ProfessionalDashboardScreen() {
         {incomingRequests.length === 0 ? (
           <View style={styles.emptyCard}>
             <Inbox size={32} color="#64748B" style={{ marginBottom: 8 }} />
-            <Text style={styles.emptyTitle}>No Pending Requests</Text>
+            <Text style={styles.emptyTitle}>{t('professional.dashboard.noPendingRequests')}</Text>
             <Text style={styles.emptySubtitle}>
-              You are all caught up! New customer bookings in your area will appear here in real-time.
+              {t('professional.dashboard.noPendingRequestsSub')}
             </Text>
           </View>
         ) : (
@@ -264,7 +266,7 @@ export default function ProfessionalDashboardScreen() {
                     activeOpacity={0.8}
                     onPress={() => handleAcceptJob(req.id)}>
                     <Check size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-                    <Text style={styles.acceptBtnText}>Accept Job</Text>
+                    <Text style={styles.acceptBtnText}>{t('professional.dashboard.acceptJob')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -276,7 +278,7 @@ export default function ProfessionalDashboardScreen() {
         <View style={styles.sectionHeaderRow}>
           <View style={styles.sectionTitleRow}>
             <CalendarCheck size={18} color="#34D399" style={{ marginRight: 6 }} />
-            <Text style={styles.sectionTitle}>Today's Active Schedule</Text>
+            <Text style={styles.sectionTitle}>{t('professional.dashboard.todaysSchedule')}</Text>
           </View>
           <View style={styles.countBadge}>
             <Text style={styles.countBadgeText}>{activeJobs.length}</Text>
@@ -286,9 +288,9 @@ export default function ProfessionalDashboardScreen() {
         {activeJobs.length === 0 ? (
           <View style={styles.emptyCard}>
             <Calendar size={32} color="#64748B" style={{ marginBottom: 8 }} />
-            <Text style={styles.emptyTitle}>No Active Jobs</Text>
+            <Text style={styles.emptyTitle}>{t('professional.dashboard.noActiveJobs')}</Text>
             <Text style={styles.emptySubtitle}>
-              Accept incoming requests above to start servicing today.
+              {t('professional.dashboard.noActiveJobsSub')}
             </Text>
           </View>
         ) : (
@@ -338,7 +340,7 @@ export default function ProfessionalDashboardScreen() {
                       onPress={() => handleStartJob(job.id)}>
                       <Rocket size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
                       <Text style={styles.startJobBtnText}>
-                        Start Service
+                        {t('professional.dashboard.startService')}
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -350,7 +352,7 @@ export default function ProfessionalDashboardScreen() {
                       onPress={() => handleCompleteJob(job.id)}>
                       <CheckCircle2 size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
                       <Text style={styles.completeJobBtnText}>
-                        Mark Completed & Collect{' '}
+                        {t('professional.dashboard.markCompleted')}{' '}
                         {formatCurrency(job.totalPrice)}
                       </Text>
                     </TouchableOpacity>

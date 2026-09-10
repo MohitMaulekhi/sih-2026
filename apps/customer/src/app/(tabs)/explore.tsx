@@ -15,10 +15,12 @@ import { dbStore } from '@repo/db';
 import { Service, ServiceCategory } from '@repo/types';
 import { RatingStars, PriceTag, EmptyState } from '@repo/ui';
 import { formatDuration } from '@repo/utils';
+import { useTranslation } from '@repo/i18n';
 import { Search, X, Check, Clock, Sparkles } from 'lucide-react-native';
 
 export default function CustomerExploreScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -47,9 +49,9 @@ export default function CustomerExploreScreen() {
     <SafeAreaView style={styles.safeArea}>
       {/* Top Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Explore Services</Text>
+        <Text style={styles.headerTitle}>{t('customer.explore.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          Compare & book top verified services
+          {t('customer.explore.subtitle')}
         </Text>
 
         {/* Search Bar */}
@@ -57,7 +59,7 @@ export default function CustomerExploreScreen() {
           <Search size={16} color="#64748B" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search all services & categories..."
+            placeholder={t('customer.explore.searchPlaceholder')}
             placeholderTextColor="#94A3B8"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -86,7 +88,7 @@ export default function CustomerExploreScreen() {
                 styles.chipText,
                 selectedCategory === 'all' && styles.chipTextSelected,
               ]}>
-              All Services
+              {t('customer.explore.allServices')}
             </Text>
           </TouchableOpacity>
 
@@ -111,7 +113,7 @@ export default function CustomerExploreScreen() {
 
         {/* Sorting Chips */}
         <View style={styles.sortRow}>
-          <Text style={styles.sortLabel}>Sort by:</Text>
+          <Text style={styles.sortLabel}>{t('customer.explore.sortBy')}</Text>
           <TouchableOpacity
             style={[
               styles.sortButton,
@@ -123,7 +125,7 @@ export default function CustomerExploreScreen() {
                 styles.sortButtonText,
                 sortBy === 'popular' && styles.sortButtonTextActive,
               ]}>
-              Popular
+              {t('customer.explore.popular')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -137,7 +139,7 @@ export default function CustomerExploreScreen() {
                 styles.sortButtonText,
                 sortBy === 'rating' && styles.sortButtonTextActive,
               ]}>
-              Top Rated
+              {t('customer.explore.topRated')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -151,7 +153,7 @@ export default function CustomerExploreScreen() {
                 styles.sortButtonText,
                 sortBy === 'price_asc' && styles.sortButtonTextActive,
               ]}>
-              Price: Low
+              {t('customer.explore.priceLow')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -164,9 +166,9 @@ export default function CustomerExploreScreen() {
         {services.length === 0 ? (
           <EmptyState
             icon="search"
-            title="No Services Found"
+            title={t('customer.explore.noServices')}
             description="Try changing your search terms or category filter"
-            actionText="Reset Filters"
+            actionText={t('customer.explore.resetFilters')}
             onAction={() => {
               setSearchQuery('');
               setSelectedCategory('all');
@@ -232,7 +234,7 @@ export default function CustomerExploreScreen() {
                     style={styles.bookBtn}
                     activeOpacity={0.8}
                     onPress={() => router.push(`/book/${service.id}` as any)}>
-                    <Text style={styles.bookBtnText}>Book Service</Text>
+                    <Text style={styles.bookBtnText}>{t('customer.explore.bookService')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>

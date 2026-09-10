@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { UserRole } from '@repo/types';
+import { useTranslation } from '@repo/i18n';
 import { AlertCircle, Lock, Mail } from 'lucide-react-native';
 
 interface LoginFormProps {
@@ -22,6 +23,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   isLoading = false,
 }) => {
   const isPro = role === 'professional';
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,11 +31,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   const handleSubmit = async () => {
     if (!email.trim()) {
-      setErrorMessage('Please enter your email address');
+      setErrorMessage(t('auth.form.errorEnterEmail'));
       return;
     }
     if (!password.trim()) {
-      setErrorMessage('Please enter your password');
+      setErrorMessage(t('auth.form.errorEnterPassword'));
       return;
     }
 
@@ -55,12 +57,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
       {/* Email input */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Email Address</Text>
+        <Text style={styles.label}>{t('auth.form.emailLabel')}</Text>
         <View style={styles.inputContainer}>
           <Mail size={16} color="#64748B" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="e.g. name@example.com"
+            placeholder={t('auth.form.emailPlaceholder')}
             placeholderTextColor="#64748B"
             value={email}
             onChangeText={(val) => {
@@ -76,12 +78,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
       {/* Password input */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>{t('auth.form.passwordLabel')}</Text>
         <View style={styles.inputContainer}>
           <Lock size={16} color="#64748B" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Enter password"
+            placeholder={t('auth.form.passwordPlaceholder')}
             placeholderTextColor="#64748B"
             value={password}
             onChangeText={(val) => {
@@ -108,7 +110,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           <ActivityIndicator color="#FFFFFF" size="small" />
         ) : (
           <Text style={styles.submitButtonText}>
-            Sign In to {isPro ? 'Pro Dashboard' : 'Account'}
+            {isPro ? t('auth.form.signInProDashboard') : t('auth.form.signInAccount')}
           </Text>
         )}
       </TouchableOpacity>

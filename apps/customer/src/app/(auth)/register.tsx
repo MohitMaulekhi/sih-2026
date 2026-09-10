@@ -1,10 +1,12 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
 import { useAuth, AuthLayout, SignUpForm, SignUpData } from '@repo/auth';
+import { useTranslation } from '@repo/i18n';
 
 export default function CustomerRegisterScreen() {
   const router = useRouter();
   const { signUp, isLoading } = useAuth();
+  const { t } = useTranslation();
 
   const handleSignUp = async (data: SignUpData) => {
     const result = await signUp(data);
@@ -17,10 +19,10 @@ export default function CustomerRegisterScreen() {
   return (
     <AuthLayout
       role="customer"
-      title="Create Account"
-      subtitle="Join millions getting reliable services at doorstep"
-      footerPrompt="Already have an account?"
-      footerActionText="Sign In"
+      title={t('auth.register.customerTitle')}
+      subtitle={t('auth.register.customerSubtitle')}
+      footerPrompt={t('auth.register.customerFooterPrompt')}
+      footerActionText={t('auth.register.customerFooterAction')}
       onFooterActionPress={() => router.push('/(auth)/login' as any)}>
       <SignUpForm
         role="customer"

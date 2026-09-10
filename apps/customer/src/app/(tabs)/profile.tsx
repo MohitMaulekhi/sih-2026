@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@repo/auth';
 import { dbStore } from '@repo/db';
+import { useTranslation, LanguageToggle } from '@repo/i18n';
 import {
   MapPin,
   Calendar,
@@ -25,11 +26,13 @@ import {
   HelpCircle,
   FileText,
   Sparkles,
+  Languages,
 } from 'lucide-react-native';
 
 export default function CustomerProfileScreen() {
   const router = useRouter();
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
 
   const userBookings = dbStore.getBookings({
     userId: user?.id,
@@ -44,7 +47,7 @@ export default function CustomerProfileScreen() {
   ).length;
 
   const handleSignOut = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out of RuralClap?', [
+    Alert.alert(t('customer.profile.signOut'), 'Are you sure you want to sign out of RuralClap?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Sign Out',
@@ -64,8 +67,8 @@ export default function CustomerProfileScreen() {
         showsVerticalScrollIndicator={false}>
         {/* Page Title */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Account</Text>
-          <Text style={styles.headerSubtitle}>Manage your profile & preferences</Text>
+          <Text style={styles.headerTitle}>{t('customer.profile.title')}</Text>
+          <Text style={styles.headerSubtitle}>{t('customer.profile.subtitle')}</Text>
         </View>
 
         {/* Profile Card */}
@@ -87,7 +90,7 @@ export default function CustomerProfileScreen() {
             <Text style={styles.userName}>{user?.fullName || 'RuralClap Customer'}</Text>
             <View style={styles.verifiedChip}>
               <ShieldCheck size={12} color="#15803D" style={{ marginRight: 4 }} />
-              <Text style={styles.verifiedChipText}>Verified Customer</Text>
+              <Text style={styles.verifiedChipText}>{t('customer.profile.verifiedCustomer')}</Text>
             </View>
           </View>
 
@@ -95,24 +98,40 @@ export default function CustomerProfileScreen() {
           <View style={styles.statsContainer}>
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{userBookings.length}</Text>
-              <Text style={styles.statTitle}>Bookings</Text>
+              <Text style={styles.statTitle}>{t('customer.profile.bookings')}</Text>
             </View>
             <View style={styles.statLine} />
             <View style={styles.statBox}>
               <Text style={styles.statValueActive}>{activeCount}</Text>
-              <Text style={styles.statTitle}>Active</Text>
+              <Text style={styles.statTitle}>{t('customer.profile.active')}</Text>
             </View>
             <View style={styles.statLine} />
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{completedCount}</Text>
-              <Text style={styles.statTitle}>Completed</Text>
+              <Text style={styles.statTitle}>{t('customer.profile.completed')}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Language Preference */}
+        <View style={styles.groupContainer}>
+          <Text style={styles.groupHeader}>{t('common.language').toUpperCase()}</Text>
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <View style={styles.infoIconBox}>
+                <Languages size={16} color="#EA580C" />
+              </View>
+              <View style={styles.infoTextBox}>
+                <Text style={styles.infoLabel}>{t('common.language')}</Text>
+              </View>
+              <LanguageToggle accentColor="#EA580C" />
             </View>
           </View>
         </View>
 
         {/* Contact & Location Info */}
         <View style={styles.groupContainer}>
-          <Text style={styles.groupHeader}>CONTACT & ADDRESS</Text>
+          <Text style={styles.groupHeader}>{t('customer.profile.contactAddress')}</Text>
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
               <View style={styles.infoIconBox}>
@@ -155,7 +174,7 @@ export default function CustomerProfileScreen() {
 
         {/* Quick Links Menu */}
         <View style={styles.groupContainer}>
-          <Text style={styles.groupHeader}>SHORTCUTS & ACTIVITY</Text>
+          <Text style={styles.groupHeader}>{t('customer.profile.shortcuts')}</Text>
           <View style={styles.menuCard}>
             <TouchableOpacity
               style={styles.menuItem}
@@ -164,10 +183,10 @@ export default function CustomerProfileScreen() {
               <View style={styles.menuIconContainer}>
                 <Calendar size={18} color="#EA580C" />
               </View>
-              <Text style={styles.menuTitle}>My Bookings</Text>
+              <Text style={styles.menuTitle}>{t('customer.profile.myBookings')}</Text>
               {activeCount > 0 && (
                 <View style={styles.countBadge}>
-                  <Text style={styles.countBadgeText}>{activeCount} Active</Text>
+                  <Text style={styles.countBadgeText}>{activeCount} {t('customer.profile.active')}</Text>
                 </View>
               )}
               <ChevronRight size={18} color="#94A3B8" />
@@ -182,7 +201,7 @@ export default function CustomerProfileScreen() {
               <View style={styles.menuIconContainer}>
                 <Compass size={18} color="#EA580C" />
               </View>
-              <Text style={styles.menuTitle}>Explore Doorstep Services</Text>
+              <Text style={styles.menuTitle}>{t('customer.profile.exploreServices')}</Text>
               <ChevronRight size={18} color="#94A3B8" />
             </TouchableOpacity>
           </View>
@@ -190,7 +209,7 @@ export default function CustomerProfileScreen() {
 
         {/* Support & Legal */}
         <View style={styles.groupContainer}>
-          <Text style={styles.groupHeader}>ABOUT & SUPPORT</Text>
+          <Text style={styles.groupHeader}>{t('customer.profile.aboutSupport')}</Text>
           <View style={styles.menuCard}>
             <TouchableOpacity
               style={styles.menuItem}
@@ -201,7 +220,7 @@ export default function CustomerProfileScreen() {
               <View style={styles.menuIconContainer}>
                 <HelpCircle size={18} color="#64748B" />
               </View>
-              <Text style={styles.menuTitle}>Help & Support</Text>
+              <Text style={styles.menuTitle}>{t('customer.profile.helpSupport')}</Text>
               <ChevronRight size={18} color="#94A3B8" />
             </TouchableOpacity>
 
@@ -216,7 +235,7 @@ export default function CustomerProfileScreen() {
               <View style={styles.menuIconContainer}>
                 <FileText size={18} color="#64748B" />
               </View>
-              <Text style={styles.menuTitle}>Terms & Service Guarantee</Text>
+              <Text style={styles.menuTitle}>{t('customer.profile.termsGuarantee')}</Text>
               <ChevronRight size={18} color="#94A3B8" />
             </TouchableOpacity>
           </View>
@@ -228,7 +247,7 @@ export default function CustomerProfileScreen() {
           activeOpacity={0.8}
           onPress={handleSignOut}>
           <LogOut size={18} color="#DC2626" style={{ marginRight: 8 }} />
-          <Text style={styles.signOutText}>Sign Out of RuralClap</Text>
+          <Text style={styles.signOutText}>{t('customer.profile.signOut')}</Text>
         </TouchableOpacity>
 
         {/* Version info */}

@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider, useAuth, RoleMismatchAlert } from '@repo/auth';
+import { initI18n } from '@repo/i18n';
 import { View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -10,12 +11,17 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 function CustomerAppRoot() {
   const { user, isLoading, roleMismatch, expectedRole, roleMismatchMessage, signOut, clearRoleMismatch } =
     useAuth();
+  const [i18nReady, setI18nReady] = useState(false);
 
   useEffect(() => {
-    if (!isLoading) {
+    initI18n().finally(() => setI18nReady(true));
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && i18nReady) {
       SplashScreen.hideAsync().catch(() => {});
     }
-  }, [isLoading]);
+  }, [isLoading, i18nReady]);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>

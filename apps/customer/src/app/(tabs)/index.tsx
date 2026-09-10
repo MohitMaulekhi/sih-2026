@@ -21,6 +21,7 @@ import {
   IconHelper,
 } from '@repo/ui';
 import { formatDuration } from '@repo/utils';
+import { useTranslation } from '@repo/i18n';
 import {
   MapPin,
   ChevronDown,
@@ -39,6 +40,7 @@ import {
 export default function CustomerHomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [popularServices, setPopularServices] = useState<Service[]>([]);
@@ -80,7 +82,7 @@ export default function CustomerHomeScreen() {
         {/* Top Header Bar */}
         <View style={styles.topHeader}>
           <View style={styles.locationContainer}>
-            <Text style={styles.locationLabel}>DELIVERING TO</Text>
+            <Text style={styles.locationLabel}>{t('customer.home.deliveringTo')}</Text>
             <TouchableOpacity
               style={styles.locationRow}
               activeOpacity={0.7}
@@ -117,7 +119,7 @@ export default function CustomerHomeScreen() {
           <Search size={16} color="#64748B" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search 'AC service', 'cleaning', 'plumber'..."
+            placeholder={t('customer.home.searchPlaceholder')}
             placeholderTextColor="#94A3B8"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -132,15 +134,15 @@ export default function CustomerHomeScreen() {
         {/* Promotional Hero Banner */}
         <View style={styles.heroBanner}>
           <View style={styles.heroContent}>
-            <Text style={styles.heroHeading}>Doorstep Home Services</Text>
+            <Text style={styles.heroHeading}>{t('customer.home.heroHeading')}</Text>
             <Text style={styles.heroSubtitle}>
-              Up to 30% OFF • 100% Certified Technicians
+              {t('customer.home.heroSubtitle')}
             </Text>
             <TouchableOpacity
               style={styles.heroCta}
               activeOpacity={0.8}
               onPress={() => setSelectedCategory('a0000000-0000-0000-0000-000000000001')}>
-              <Text style={styles.heroCtaText}>Explore Offers</Text>
+              <Text style={styles.heroCtaText}>{t('customer.home.exploreOffers')}</Text>
               <ArrowRight size={14} color="#FFFFFF" style={{ marginLeft: 4 }} />
             </TouchableOpacity>
           </View>
@@ -155,9 +157,9 @@ export default function CustomerHomeScreen() {
         {/* Category Icons Grid */}
         <SectionHeader
           icon={<Sparkles size={18} color="#EA580C" />}
-          title="Categories"
-          subtitle="Explore verified doorstep home services"
-          actionText={selectedCategory ? 'Clear Filter' : undefined}
+          title={t('customer.home.categories')}
+          subtitle={t('customer.home.categoriesSubtitle')}
+          actionText={selectedCategory ? t('customer.home.clearFilter') : undefined}
           onActionPress={() => setSelectedCategory(null)}
         />
 
@@ -204,9 +206,9 @@ export default function CustomerHomeScreen() {
           <>
             <SectionHeader
               icon={<Flame size={18} color="#EA580C" />}
-              title="Most Booked Services"
-              subtitle="Trusted by 50,000+ households"
-              actionText="View All"
+              title={t('customer.home.mostBooked')}
+              subtitle={t('customer.home.mostBookedSubtitle')}
+              actionText={t('common.viewAll')}
               onActionPress={() => router.push('/(tabs)/explore' as any)}
             />
 
@@ -252,7 +254,7 @@ export default function CustomerHomeScreen() {
                       <TouchableOpacity
                         style={styles.bookMiniBtn}
                         onPress={() => router.push(`/book/${service.id}` as any)}>
-                        <Text style={styles.bookMiniBtnText}>Book</Text>
+                        <Text style={styles.bookMiniBtnText}>{t('common.book')}</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -270,9 +272,9 @@ export default function CustomerHomeScreen() {
               ? `${categories.find((c) => c.id === selectedCategory)?.name || 'Filtered'} Services`
               : searchQuery
                 ? `Results for "${searchQuery}"`
-                : 'All Doorstep Services'
+                : t('customer.home.allServices')
           }
-          subtitle="Top rated professionals ready to serve"
+          subtitle={t('customer.home.topRatedSubtitle')}
         />
 
         <View style={styles.servicesList}>
@@ -295,7 +297,7 @@ export default function CustomerHomeScreen() {
                   />
                   {service.isPopular && (
                     <View style={styles.trendingBadge}>
-                      <Text style={styles.trendingBadgeText}>Bestseller</Text>
+                      <Text style={styles.trendingBadgeText}>{t('customer.home.bestseller')}</Text>
                     </View>
                   )}
                 </View>
@@ -319,7 +321,7 @@ export default function CustomerHomeScreen() {
                     style={styles.bookButton}
                     activeOpacity={0.8}
                     onPress={() => router.push(`/book/${service.id}` as any)}>
-                    <Text style={styles.bookButtonText}>Book</Text>
+                    <Text style={styles.bookButtonText}>{t('common.book')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -329,22 +331,22 @@ export default function CustomerHomeScreen() {
 
         {/* Trust Badges Section */}
         <View style={styles.trustSection}>
-          <Text style={styles.trustTitle}>The RuralClap Promise</Text>
+          <Text style={styles.trustTitle}>{t('customer.home.promiseTitle')}</Text>
           <View style={styles.trustGrid}>
             <View style={styles.trustItem}>
               <ShieldCheck size={26} color="#EA580C" style={styles.trustIcon} />
-              <Text style={styles.trustHeading}>Verified Pros</Text>
-              <Text style={styles.trustSub}>Background checked & trained</Text>
+              <Text style={styles.trustHeading}>{t('customer.home.trustVerified')}</Text>
+              <Text style={styles.trustSub}>{t('customer.home.trustVerifiedSub')}</Text>
             </View>
             <View style={styles.trustItem}>
               <Clock size={26} color="#EA580C" style={styles.trustIcon} />
-              <Text style={styles.trustHeading}>On-Time Arrival</Text>
-              <Text style={styles.trustSub}>Strict adherence to time slots</Text>
+              <Text style={styles.trustHeading}>{t('customer.home.trustOnTime')}</Text>
+              <Text style={styles.trustSub}>{t('customer.home.trustOnTimeSub')}</Text>
             </View>
             <View style={styles.trustItem}>
               <CheckCircle2 size={26} color="#EA580C" style={styles.trustIcon} />
-              <Text style={styles.trustHeading}>30-Day Cover</Text>
-              <Text style={styles.trustSub}>Free rework if not satisfied</Text>
+              <Text style={styles.trustHeading}>{t('customer.home.trustCover')}</Text>
+              <Text style={styles.trustSub}>{t('customer.home.trustCoverSub')}</Text>
             </View>
           </View>
         </View>
